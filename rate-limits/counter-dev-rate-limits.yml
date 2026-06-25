@@ -1,0 +1,62 @@
+specification: API Commons Rate Limits
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/RateLimits
+provider: Counter
+providerId: counter-dev
+created: '2026-06-21'
+modified: '2026-06-21'
+reconciled: false
+tags:
+- Web Analytics
+- Privacy
+- Open Source
+- Self-Hosted
+- Rate Limiting
+- Quotas
+description: >-
+  Counter does not publish formal rate limits, quotas, or throttling tiers for
+  its tracking, stats, or account endpoints. The tracking snippet is designed
+  to be lightweight - it fires at most once per tab per session (guarded by a
+  sessionStorage flag) plus one Beacon pageview per load - which naturally
+  bounds collect traffic. Server-side protections (e.g. bot filtering, ignoring
+  localhost origins) exist in the source but no numeric per-client limits are
+  documented. Self-hosted deployments are bounded only by the operator's own
+  infrastructure.
+notes: >-
+  No numeric rate-limit values are published by the project; values below are
+  unreconciled. Confirm any hosted-service throttling and self-host tuning
+  during reconciliation.
+sources:
+- https://github.com/ihucos/counter.dev/blob/master/docs/script.js
+- https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/track.go
+- https://github.com/ihucos/counter.dev
+responseCodes:
+  throttled: not documented
+limits:
+- name: Tracking (collect) requests
+  scope: client
+  metric: requests
+  limit: see provider documentation
+  notes: >-
+    No published numeric limit. Snippet self-limits to one /track per tab per
+    session plus one /trackpage Beacon per page load.
+- name: Stats / dashboard data requests
+  scope: account
+  metric: requests
+  limit: see provider documentation
+  notes: No published numeric limit on /query or the /dump SSE stream.
+- name: Account endpoints
+  scope: account
+  metric: requests
+  limit: see provider documentation
+  notes: No published numeric limit.
+policies:
+- name: Bot Filtering
+  description: The /track endpoint drops requests from detected bots and from localhost/127.0.0.1 origins.
+- name: Client-Side Throttling
+  description: The tracking snippet fires once per tab per session via a sessionStorage flag, bounding collect volume.
+- name: Self-Hosted Scaling
+  description: Self-hosted operators scale Redis and the Go server to their own traffic; no upstream-imposed quota.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

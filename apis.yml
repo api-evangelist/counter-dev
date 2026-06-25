@@ -1,0 +1,106 @@
+aid: counter-dev
+url: https://raw.githubusercontent.com/api-evangelist/counter-dev/refs/heads/main/apis.yml
+name: Counter
+kind: company
+description: Counter (counter.dev) is an open-source, privacy-friendly web analytics
+  service. A lightweight tracking snippet POSTs a single aggregated hit per visit
+  to a public collect endpoint (t.counter.dev), and a token-authenticated dashboard
+  data feed returns aggregated stats. Counter uses no cookies, no logging, and no
+  IP fingerprinting. It is AGPL-3.0 licensed and can be self-hosted; the hosted
+  service is pay-what-you-want.
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+tags:
+- Web Analytics
+- Privacy
+- Open Source
+- Tracking
+- Self-Hosted
+created: '2026-06-21'
+modified: '2026-06-21'
+specificationVersion: '0.19'
+apis:
+- aid: counter-dev:counter-dev-tracking-api
+  name: Counter Tracking / Collect API
+  tags:
+  - Tracking
+  - Collect
+  - Analytics
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://counter.dev/help/integration.html
+  baseURL: https://t.counter.dev
+  properties:
+  - url: https://counter.dev/help/integration.html
+    type: Documentation
+  - url: https://github.com/ihucos/counter.dev/blob/master/docs/script.js
+    type: APIReference
+  - url: openapi/counter-dev-openapi.yml
+    type: OpenAPI
+  - url: collections/counter-dev.postman_collection.json
+    type: PostmanCollection
+  - url: collections/counter-dev.opencollection.json
+    type: OpenCollection
+  description: Public, unauthenticated collect endpoints called by the 1.1 KB tracking
+    snippet. GET /track records one aggregated visit (referrer, screen, country,
+    language, device) keyed to a site data-id; POST /trackpage records a pageview
+    via the browser Beacon API. No cookies or IP addresses are stored.
+- aid: counter-dev:counter-dev-stats-api
+  name: Counter Stats / Dashboard Data API
+  tags:
+  - Stats
+  - Dashboard
+  - Reporting
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://counter.dev/dashboard.html
+  baseURL: https://counter.dev
+  properties:
+  - url: https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/query.go
+    type: APIReference
+  - url: openapi/counter-dev-openapi.yml
+    type: OpenAPI
+  - url: collections/counter-dev.postman_collection.json
+    type: PostmanCollection
+  - url: collections/counter-dev.opencollection.json
+    type: OpenCollection
+  description: Token- or session-authenticated read endpoints that return aggregated
+    site stats. GET /query returns JSON archive data for a date range; GET /dump is
+    a Server-Sent Events stream pushing live and archived dump payloads. Sessionless
+    access uses user + token query parameters; a shareable read token is resettable
+    via /resettoken.
+- aid: counter-dev:counter-dev-account-api
+  name: Counter Account API
+  tags:
+  - Account
+  - Authentication
+  - Users
+  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+  humanURL: https://counter.dev/
+  baseURL: https://counter.dev
+  properties:
+  - url: https://github.com/ihucos/counter.dev/tree/master/backend/endpoints
+    type: APIReference
+  - url: openapi/counter-dev-openapi.yml
+    type: OpenAPI
+  - url: collections/counter-dev.postman_collection.json
+    type: PostmanCollection
+  - url: collections/counter-dev.opencollection.json
+    type: OpenCollection
+  description: Form-encoded account endpoints backing the dashboard - register, login,
+    logout, edit account, reset token, and delete user/site. Authentication is by
+    username and password establishing a session cookie; these are application
+    endpoints rather than a formally published developer API.
+common:
+- type: GitHubOrganization
+  url: https://github.com/ihucos/counter.dev
+- type: Website
+  url: https://counter.dev/
+- type: Documentation
+  url: https://counter.dev/help/integration.html
+- type: Plans
+  url: plans/counter-dev-plans-pricing.yml
+- type: RateLimits
+  url: rate-limits/counter-dev-rate-limits.yml
+- type: FinOps
+  url: finops/counter-dev-finops.yml
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

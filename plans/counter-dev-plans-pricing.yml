@@ -1,0 +1,74 @@
+specification: API Commons Plans
+specificationVersion: '0.1'
+schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main/schema/api-commons.yml#/$defs/Plans
+provider: Counter
+providerId: counter-dev
+created: '2026-06-21'
+modified: '2026-06-21'
+reconciled: false
+tags:
+- Web Analytics
+- Privacy
+- Open Source
+- Self-Hosted
+- Plans
+description: >-
+  Counter has no metered, tiered, or per-call API pricing. The hosted service
+  at counter.dev is pay-what-you-want ("start paying whenever you want"); the
+  tracking, stats, and account endpoints are available for free with no credit
+  card required. The full server is open source under AGPL-3.0 and can be
+  self-hosted at no license cost. There are no published rate or usage-based
+  charges for any endpoint.
+notes: >-
+  Pay-what-you-want amounts are set by the user and are not published as fixed
+  tiers. Verify current hosted-service donation/payment options on the
+  dashboard during reconciliation.
+sources:
+- https://counter.dev/
+- https://github.com/ihucos/counter.dev
+- https://github.com/ihucos/counter.dev-selfhost
+plans:
+- id: counter-dev-hosted
+  name: Hosted (Pay What You Want)
+  type: free
+  description: >-
+    Free hosted web analytics on counter.dev with no credit card required.
+    Users may voluntarily pay any amount whenever they choose. Includes the
+    public tracking endpoints and token/session-authenticated stats access.
+  entries:
+  - label: Hosted Analytics
+    name: hosted_analytics
+    type: free
+    metric: requests
+    limit: -1
+    timeFrame: month
+    geo: global
+    unit: 1
+    price: pay what you want
+    userMultiplied: false
+  elements:
+  - name: Tracking / Collect
+  - name: Stats / Dashboard Data
+  - name: Account
+- id: counter-dev-selfhost
+  name: Self-Hosted (Open Source)
+  type: free
+  description: >-
+    Run the AGPL-3.0 Counter server yourself (Go server, Redis, optional SQL
+    archive). No license fee; you bear only your own infrastructure costs.
+  entries:
+  - label: Self-Hosted License
+    name: selfhost_license
+    type: free
+    metric: contract
+    limit: -1
+    timeFrame: year
+    geo: global
+    unit: 1
+    price: free (AGPL-3.0)
+    userMultiplied: false
+  elements:
+  - name: Self-Hosted Deployment
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

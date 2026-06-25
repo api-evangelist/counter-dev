@@ -1,0 +1,182 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Counter API",
+    "version": "1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Tracking",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Record an aggregated visit.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://t.counter.dev/track?id=:id&referrer=:referrer&screen=:screen&utcoffset=:utcoffset",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "Site data-id (per-account cached UUID)."
+              },
+              {
+                "name": "referrer",
+                "value": "",
+                "type": "query",
+                "description": "Document referrer URL; only the host is retained."
+              },
+              {
+                "name": "screen",
+                "value": "",
+                "type": "query",
+                "description": "Screen resolution as WIDTHxHEIGHT."
+              },
+              {
+                "name": "utcoffset",
+                "value": "",
+                "type": "query",
+                "description": "Client UTC offset for local day/hour bucketing."
+              }
+            ]
+          },
+          "docs": "Records a single aggregated visit for the site identified by data-id. Requires an Origin header. No cookies set, no IP stored."
+        },
+        {
+          "info": {
+            "name": "Record a pageview.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://t.counter.dev/trackpage",
+            "body": {
+              "type": "urlencoded",
+              "data": []
+            }
+          },
+          "docs": "Records a pageview counter for the given page path. Called via the browser Beacon API. Body is application/x-www-form-urlencoded with id and page."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Stats",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Query archived stats for a date range.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://counter.dev/query?from=:from&to=:to",
+            "params": [
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Start date (YYYY-MM-DD)."
+              },
+              {
+                "name": "to",
+                "value": "",
+                "type": "query",
+                "description": "End date (YYYY-MM-DD)."
+              }
+            ]
+          },
+          "docs": "Returns aggregated archived visit data as JSON. Auth by session cookie or user + token query params."
+        },
+        {
+          "info": {
+            "name": "Stream live and archived stats (Server-Sent Events).",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://counter.dev/dump?utcoffset=:utcoffset",
+            "params": [
+              {
+                "name": "utcoffset",
+                "value": "",
+                "type": "query",
+                "description": "Client UTC offset for day/hour bucketing."
+              }
+            ]
+          },
+          "docs": "Server-Sent Events stream of archive and live dump payloads. Auth by session cookie, user + token, or demo. One-way HTTP streaming, not WebSocket."
+        }
+      ]
+    },
+    {
+      "info": {
+        "name": "Account",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Register a new account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://counter.dev/register",
+            "body": {
+              "type": "urlencoded",
+              "data": []
+            }
+          },
+          "docs": "Creates a new account (user, password, optional mail and utcoffset) and establishes a session."
+        },
+        {
+          "info": {
+            "name": "Log in and establish a session.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://counter.dev/login",
+            "body": {
+              "type": "urlencoded",
+              "data": []
+            }
+          },
+          "docs": "Authenticates user and password and sets a session cookie."
+        },
+        {
+          "info": {
+            "name": "Log out of the current session.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://counter.dev/logout"
+          },
+          "docs": "Clears the current session."
+        },
+        {
+          "info": {
+            "name": "Reset the account read token.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://counter.dev/resettoken"
+          },
+          "docs": "Resets the read-only API token, invalidating the previous one. Requires an authenticated session."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

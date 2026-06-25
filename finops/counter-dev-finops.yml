@@ -1,0 +1,81 @@
+specification: FinOps Framework
+specificationVersion: '1.0'
+schema: https://www.finops.org/framework/
+provider: Counter
+providerId: counter-dev
+created: '2026-06-21'
+modified: '2026-06-21'
+reconciled: false
+tags:
+- Web Analytics
+- Privacy
+- Open Source
+- Self-Hosted
+- FinOps
+- Cost Management
+description: >-
+  FinOps view of Counter. Counter has no usage-based billing: the hosted
+  counter.dev service is pay-what-you-want and free to use, and the AGPL-3.0
+  server can be self-hosted at no license cost. As a result there is no
+  per-token, per-request, or per-seat meter to allocate. The only real spend is
+  (a) optional voluntary payments to the hosted service and (b) the operator's
+  own infrastructure costs (Redis, the Go server, and an optional SQL archive
+  database) when self-hosting.
+notes: >-
+  No vendor billing exports or metered charges exist. FOCUS alignment is
+  nominal; the meaningful cost levers are voluntary support and self-host
+  infrastructure. Unreconciled.
+sources:
+- https://counter.dev/
+- https://github.com/ihucos/counter.dev
+- https://github.com/ihucos/counter.dev-selfhost
+alignedWith:
+  framework: FinOps Foundation Framework
+  frameworkUrl: https://www.finops.org/framework/
+  dataSpec: FOCUS
+  dataSpecVersion: '1.3'
+  dataSpecUrl: https://focus.finops.org/focus-specification/v1-3/
+publisherName: Counter
+serviceCategory: Analytics
+billingModel:
+  pricingCategory: Pay-What-You-Want
+  billingFrequency: Voluntary
+  billingCurrency: USD
+  chargeCategories:
+  - Purchase
+focusColumns:
+  ServiceName: Counter
+  ServiceCategory: Analytics
+  ProviderName: Counter
+  PublisherName: Counter
+  InvoiceIssuerName: Counter
+  BillingCurrency: USD
+  ChargeCategory: Purchase
+  PricingCategory: Pay-What-You-Want
+meters:
+- name: voluntary_payment
+  description: Optional pay-what-you-want contribution to the hosted counter.dev service.
+  unit: currency
+  aggregation: sum
+  dimensions:
+  - account
+- name: selfhost_infrastructure
+  description: >-
+    Operator-borne infrastructure cost when self-hosting (Redis, Go server,
+    optional SQL archive). Not billed by Counter.
+  unit: currency
+  aggregation: sum
+  dimensions:
+  - deployment
+principles:
+- name: Visibility
+  description: Track voluntary payments to the hosted service and, when self-hosting, your own Redis/compute/storage spend.
+- name: Allocation
+  description: For self-hosting, allocate infrastructure cost per deployment; the hosted service has no per-account meter.
+- name: Optimization
+  description: Self-host on modest infrastructure (Redis plus a small Go server) to keep costs near zero; the snippet's once-per-tab design keeps collect volume low.
+- name: Accountability
+  description: Decide voluntary support level for the hosted service; assign an owner for self-hosted infrastructure budgets.
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

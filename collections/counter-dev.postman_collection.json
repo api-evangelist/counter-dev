@@ -1,0 +1,206 @@
+{
+  "info": {
+    "name": "Counter API",
+    "description": "Real HTTP surface of Counter (counter.dev), an open-source, privacy-friendly web analytics service (AGPL-3.0). Tracking endpoints are public; stats endpoints use a session cookie or a user + token pair. Endpoints derived from the project source at github.com/ihucos/counter.dev.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Tracking",
+      "item": [
+        {
+          "name": "Record an aggregated visit.",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "https://example.com",
+                "description": "Required. Used to derive the site id."
+              }
+            ],
+            "url": {
+              "raw": "https://t.counter.dev/track?id=&referrer=&screen=&utcoffset=",
+              "protocol": "https",
+              "host": ["t", "counter", "dev"],
+              "path": ["track"],
+              "query": [
+                { "key": "id", "value": "", "description": "Site data-id (per-account cached UUID)." },
+                { "key": "referrer", "value": "", "description": "Document referrer URL; only the host is retained." },
+                { "key": "screen", "value": "", "description": "Screen resolution WIDTHxHEIGHT." },
+                { "key": "utcoffset", "value": "", "description": "Client UTC offset." }
+              ]
+            },
+            "description": "Records a single aggregated visit. No cookies set, no IP stored. Returns plain text OK."
+          },
+          "response": []
+        },
+        {
+          "name": "Record a pageview.",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Origin",
+                "value": "https://example.com",
+                "description": "Required. Used to derive the site id."
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "id", "value": "", "description": "Site data-id." },
+                { "key": "page", "value": "", "description": "Page path (window.location.pathname)." }
+              ]
+            },
+            "url": {
+              "raw": "https://t.counter.dev/trackpage",
+              "protocol": "https",
+              "host": ["t", "counter", "dev"],
+              "path": ["trackpage"]
+            },
+            "description": "Records a pageview via the Beacon API. Returns 204."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Stats",
+      "item": [
+        {
+          "name": "Query archived stats for a date range.",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "https://counter.dev/query?from=&to=&user=&token=",
+              "protocol": "https",
+              "host": ["counter", "dev"],
+              "path": ["query"],
+              "query": [
+                { "key": "from", "value": "", "description": "Start date YYYY-MM-DD." },
+                { "key": "to", "value": "", "description": "End date YYYY-MM-DD." },
+                { "key": "user", "value": "", "description": "Account user id (sessionless token access)." },
+                { "key": "token", "value": "", "description": "Read-only API token (paired with user)." }
+              ]
+            },
+            "description": "Returns aggregated archived visit data as JSON. Auth by session cookie or user + token."
+          },
+          "response": []
+        },
+        {
+          "name": "Stream live and archived stats (Server-Sent Events).",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "Accept", "value": "text/event-stream" }
+            ],
+            "url": {
+              "raw": "https://counter.dev/dump?utcoffset=&user=&token=",
+              "protocol": "https",
+              "host": ["counter", "dev"],
+              "path": ["dump"],
+              "query": [
+                { "key": "utcoffset", "value": "", "description": "Client UTC offset." },
+                { "key": "user", "value": "", "description": "Account user id (sessionless token access)." },
+                { "key": "token", "value": "", "description": "Read-only API token (paired with user)." }
+              ]
+            },
+            "description": "Server-Sent Events stream of archive and live dump payloads. One-way HTTP streaming, not WebSocket."
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Account",
+      "item": [
+        {
+          "name": "Register a new account.",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "user", "value": "", "description": "Username (account id)." },
+                { "key": "password", "value": "", "description": "Password." },
+                { "key": "mail", "value": "", "description": "Optional email." },
+                { "key": "utcoffset", "value": "", "description": "Optional UTC offset preference." }
+              ]
+            },
+            "url": {
+              "raw": "https://counter.dev/register",
+              "protocol": "https",
+              "host": ["counter", "dev"],
+              "path": ["register"]
+            },
+            "description": "Creates a new account and establishes a session."
+          },
+          "response": []
+        },
+        {
+          "name": "Log in and establish a session.",
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "Content-Type", "value": "application/x-www-form-urlencoded" }
+            ],
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                { "key": "user", "value": "", "description": "Username." },
+                { "key": "password", "value": "", "description": "Password." }
+              ]
+            },
+            "url": {
+              "raw": "https://counter.dev/login",
+              "protocol": "https",
+              "host": ["counter", "dev"],
+              "path": ["login"]
+            },
+            "description": "Authenticates and sets a session cookie."
+          },
+          "response": []
+        },
+        {
+          "name": "Log out of the current session.",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://counter.dev/logout",
+              "protocol": "https",
+              "host": ["counter", "dev"],
+              "path": ["logout"]
+            },
+            "description": "Clears the current session."
+          },
+          "response": []
+        },
+        {
+          "name": "Reset the account read token.",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "url": {
+              "raw": "https://counter.dev/resettoken",
+              "protocol": "https",
+              "host": ["counter", "dev"],
+              "path": ["resettoken"]
+            },
+            "description": "Resets the read-only API token. Requires an authenticated session."
+          },
+          "response": []
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,112 @@
+aid: counter-dev
+name: Counter
+review:
+  question: Does Counter expose a documented, formally published public developer API?
+  answer: false
+  date: '2026-06-21'
+  reviewer: API Evangelist
+  asyncapiSpecCreated: false
+  asyncapiScopeNote: |
+    Counter's /dump endpoint is an HTTP Server-Sent Events (SSE) stream. Per
+    current API Evangelist scope, SSE is in-scope for AsyncAPI modeling;
+    however no AsyncAPI document was authored for this repo because the dump
+    payload schema is not formally published by the project and would have to
+    be reverse-engineered from source. The SSE stream is documented in the
+    OpenAPI as a GET /dump returning text/event-stream, with a clear note that
+    it is one-way HTTP streaming, not WebSocket.
+findings:
+  summary: |
+    Counter (counter.dev) is an open-source, privacy-friendly web analytics
+    service by ihucos, licensed AGPL-3.0. It does NOT publish a formal,
+    versioned developer API with reference docs and schemas. Instead it has a
+    real but thin HTTP surface, fully visible in its open source, that this
+    catalog documents honestly:
+
+    1. Tracking / Collect (public, unauthenticated): GET /track records one
+       aggregated visit; POST /trackpage records a pageview via the Beacon
+       API. Default host https://t.counter.dev (override via data-server).
+       Requires an Origin header. No cookies, no logging, no IP storage.
+    2. Stats / Dashboard Data (authenticated): GET /query returns archived
+       stats as JSON for a date range; GET /dump is an SSE stream of live and
+       archived dump payloads. Auth is a session cookie OR a user + token pair
+       (sessionless, read-only). The token is resettable via /resettoken.
+    3. Account (application endpoints, not a published API): /register,
+       /login, /logout, /accountedit, /deleteUser, /deletesite, etc., session
+       cookie based.
+
+    Endpoint paths were taken directly from the AGPL source
+    (backend/endpoints/*, derived from filenames via EndpointName) and from
+    the tracking snippet (docs/script.js). Request/response bodies beyond the
+    documented query parameters are not formally published, so the OpenAPI
+    describes responses rather than fully schematizing them. Nothing was
+    fabricated.
+  ossVsHosted:
+    - aspect: Source
+      detail: Full server (Go + Redis, optional SQL archive) is open source under AGPL-3.0 at github.com/ihucos/counter.dev. Self-host instructions at github.com/ihucos/counter.dev-selfhost.
+    - aspect: Hosted service
+      detail: counter.dev runs the same code as a hosted, pay-what-you-want service with a public demo account (demo=1 / the magic "counter" user).
+    - aspect: API availability
+      detail: Same endpoints exist in both. There is no separate "API product," published API key flow, SDKs, or API reference site - the developer surface is the analytics snippet plus the session/token-protected dashboard data feed.
+  transports:
+    - protocol: REST
+      scheme: https
+      baseURL: https://t.counter.dev
+      documented: true
+      note: Tracking/collect endpoints (/track, /trackpage).
+    - protocol: REST
+      scheme: https
+      baseURL: https://counter.dev
+      documented: true
+      note: Stats (/query) and account endpoints.
+    - protocol: SSE
+      scheme: https
+      documented: true
+      note: GET /dump streams text/event-stream dump payloads. One-way HTTP streaming, not WebSocket.
+    - protocol: WebSocket
+      scheme: wss
+      documented: false
+      note: No WebSocket endpoint exists in the source.
+  endpointsConfirmedFromSource:
+    - GET  https://t.counter.dev/track
+    - POST https://t.counter.dev/trackpage
+    - GET  https://counter.dev/query
+    - GET  https://counter.dev/dump
+    - POST https://counter.dev/resettoken
+    - POST https://counter.dev/login
+    - POST https://counter.dev/register
+    - POST https://counter.dev/logout
+    - "POST https://counter.dev/accountedit, /deleteUser, /deletesite, /deletetoken, /recover, /setPrefRange, /setPrefSite, /feedback, /lang, /subscribed, /newsletterRegister (dashboard application endpoints)"
+  authentication:
+    - mechanism: None
+      appliesTo: /track, /trackpage
+      note: Public collect endpoints; only an Origin header is required.
+    - mechanism: Session cookie
+      appliesTo: /query, /dump, account endpoints
+      note: Set on /login and /register.
+    - mechanism: user + token query params
+      appliesTo: /query, /dump
+      note: Sessionless, read-only; token verified via VerifyToken and resettable via /resettoken.
+sources:
+  - url: https://counter.dev/
+    type: Website
+    note: Privacy claims (no cookies/logging/IP) and pay-what-you-want model.
+  - url: https://counter.dev/help/integration.html
+    type: Documentation
+    note: Snippet integration instructions (tracking code copied from the dashboard).
+  - url: https://github.com/ihucos/counter.dev
+    type: SourceCode
+    note: AGPL-3.0 server; endpoint handlers under backend/endpoints/.
+  - url: https://github.com/ihucos/counter.dev/blob/master/docs/script.js
+    type: SourceCode
+    note: Tracking snippet - confirms https://t.counter.dev default host and /track + /trackpage with id, referrer, screen, utcoffset, page params.
+  - url: https://github.com/ihucos/counter.dev-selfhost
+    type: SourceCode
+    note: Self-hosting project.
+actions:
+  apisYmlUpdated: true
+  reason: |
+    Documented Counter's real but thin surface as three APIs (Tracking/Collect,
+    Stats/Dashboard Data, Account) with endpoints, hosts, params, and auth taken
+    from source. Marked rate-limits and plans reconciled:false where the project
+    publishes no numeric values. No formal developer API portal exists, so this
+    is recorded honestly rather than overstated.
