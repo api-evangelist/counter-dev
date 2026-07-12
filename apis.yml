@@ -89,6 +89,10 @@ apis:
     username and password establishing a session cookie; these are application
     endpoints rather than a formally published developer API.
 common:
+- type: DomainSecurity
+  url: security/counter-dev-domain-security.yml
+- type: Authentication
+  url: authentication/counter-dev-authentication.yml
 - type: GitHubOrganization
   url: https://github.com/ihucos/counter.dev
 - type: Website
@@ -101,6 +105,8 @@ common:
   url: rate-limits/counter-dev-rate-limits.yml
 - type: FinOps
   url: finops/counter-dev-finops.yml
+- url: https://counter.dev/blog
+  type: Blog
 maintainers:
 - FN: Kin Lane
   email: kin@apievangelist.com

@@ -1,0 +1,25 @@
+generated: '2026-07-11'
+method: derived
+source: openapi/counter-dev-openapi.yml
+summary:
+  types:
+  - apiKey
+  api_key_in:
+  - cookie
+  - query
+schemes:
+- name: sessionCookie
+  type: apiKey
+  in: cookie
+  parameter: session
+  description: Session cookie set on login/register, used by the dashboard UI.
+  sources:
+  - openapi/counter-dev-openapi.yml
+- name: apiToken
+  type: apiKey
+  in: query
+  parameter: token
+  description: Read-only account token, paired with the user query parameter, for sessionless
+    access to /query and /dump.
+  sources:
+  - openapi/counter-dev-openapi.yml
