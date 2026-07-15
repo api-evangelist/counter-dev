@@ -89,6 +89,8 @@ apis:
     username and password establishing a session cookie; these are application
     endpoints rather than a formally published developer API.
 common:
+- type: AgenticAccess
+  url: agentic-access/counter-dev-agentic-access.yml
 - type: DomainSecurity
   url: security/counter-dev-domain-security.yml
 - type: Authentication
