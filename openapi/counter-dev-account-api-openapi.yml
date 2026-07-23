@@ -1,0 +1,107 @@
+openapi: 3.0.1
+info:
+  title: Counter Account API
+  description: Counter (counter.dev) is an open-source, privacy-friendly web analytics service. This specification documents the real HTTP surface of the Counter server as implemented in the AGPL-3.0 source at https://github.com/ihucos/counter.dev. The tracking/collect endpoints are public and unauthenticated and are called by the browser tracking snippet. The stats endpoints return aggregated data and are protected either by a session cookie or by a user + token pair (sessionless, read-only). The account endpoints back the dashboard UI and are not a formally published developer API. Endpoint paths are derived directly from the server source; request/response schemas beyond the documented query parameters are not formally published by the project, so responses are described rather than fully schematized.
+  termsOfService: https://counter.dev/
+  contact:
+    name: Counter (ihucos)
+    url: https://github.com/ihucos/counter.dev
+  license:
+    name: AGPL-3.0
+    url: https://github.com/ihucos/counter.dev/blob/master/LICENSE
+  version: '1.0'
+servers:
+- url: https://t.counter.dev
+  description: Default hosted tracking / collect host (configurable via data-server).
+- url: https://counter.dev
+  description: Hosted dashboard, stats, and account host. Self-hosted deployments use their own host.
+tags:
+- name: Account
+paths:
+  /resettoken:
+    post:
+      operationId: resetToken
+      tags:
+      - Account
+      summary: Reset the account read token.
+      description: Resets the authenticated account's read-only API token, invalidating the previous token. Requires an authenticated session.
+      responses:
+        '200':
+          description: Token reset.
+  /login:
+    post:
+      operationId: login
+      tags:
+      - Account
+      summary: Log in and establish a session.
+      description: Authenticates a user with username and password and sets a session cookie. Body is application/x-www-form-urlencoded.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - user
+              - password
+              properties:
+                user:
+                  type: string
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Logged in; session cookie set and account returned.
+        '400':
+          description: Missing input or wrong username/password.
+  /register:
+    post:
+      operationId: register
+      tags:
+      - Account
+      summary: Register a new account.
+      description: Creates a new account with a username and password, optional email, and UTC offset preference, then establishes a session. Body is application/x-www-form-urlencoded.
+      requestBody:
+        required: true
+        content:
+          application/x-www-form-urlencoded:
+            schema:
+              type: object
+              required:
+              - user
+              - password
+              properties:
+                user:
+                  type: string
+                password:
+                  type: string
+                mail:
+                  type: string
+                utcoffset:
+                  type: string
+      responses:
+        '200':
+          description: Account created; session cookie set and account returned.
+        '400':
+          description: Missing input or account already exists.
+  /logout:
+    post:
+      operationId: logout
+      tags:
+      - Account
+      summary: Log out of the current session.
+      responses:
+        '200':
+          description: Session cleared.
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: Session cookie set on login/register, used by the dashboard UI.
+    apiToken:
+      type: apiKey
+      in: query
+      name: token
+      description: Read-only account token, paired with the user query parameter, for sessionless access to /query and /dump.

@@ -1,0 +1,118 @@
+openapi: 3.0.1
+info:
+  title: Counter Account Stats API
+  description: Counter (counter.dev) is an open-source, privacy-friendly web analytics service. This specification documents the real HTTP surface of the Counter server as implemented in the AGPL-3.0 source at https://github.com/ihucos/counter.dev. The tracking/collect endpoints are public and unauthenticated and are called by the browser tracking snippet. The stats endpoints return aggregated data and are protected either by a session cookie or by a user + token pair (sessionless, read-only). The account endpoints back the dashboard UI and are not a formally published developer API. Endpoint paths are derived directly from the server source; request/response schemas beyond the documented query parameters are not formally published by the project, so responses are described rather than fully schematized.
+  termsOfService: https://counter.dev/
+  contact:
+    name: Counter (ihucos)
+    url: https://github.com/ihucos/counter.dev
+  license:
+    name: AGPL-3.0
+    url: https://github.com/ihucos/counter.dev/blob/master/LICENSE
+  version: '1.0'
+servers:
+- url: https://t.counter.dev
+  description: Default hosted tracking / collect host (configurable via data-server).
+- url: https://counter.dev
+  description: Hosted dashboard, stats, and account host. Self-hosted deployments use their own host.
+tags:
+- name: Stats
+paths:
+  /query:
+    get:
+      operationId: query
+      tags:
+      - Stats
+      summary: Query archived stats for a date range.
+      description: Returns aggregated, archived visit data for the authenticated account over a date range as JSON. Authentication is by session cookie or by a user + token pair (sessionless, read-only). When demo=1 the magic demo account is queried instead.
+      parameters:
+      - name: from
+        in: query
+        description: Start date (YYYY-MM-DD).
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: to
+        in: query
+        description: End date (YYYY-MM-DD).
+        required: true
+        schema:
+          type: string
+          format: date
+      - name: user
+        in: query
+        description: Account user id, for sessionless (token) access.
+        required: false
+        schema:
+          type: string
+      - name: token
+        in: query
+        description: Read-only API token for sessionless access (paired with user).
+        required: false
+        schema:
+          type: string
+      - name: demo
+        in: query
+        description: Set to 1 to query the public demo account.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Aggregated archive data for the requested range.
+          content:
+            application/json:
+              schema:
+                type: object
+  /dump:
+    get:
+      operationId: dump
+      tags:
+      - Stats
+      summary: Stream live and archived stats (Server-Sent Events).
+      description: Opens a text/event-stream (Server-Sent Events) connection that pushes an initial archive payload and then live "dump" payloads (per-site counts, logs, and aggregated visits) as new visits arrive. Authenticated by session cookie, by user + token (sessionless), or via demo. This is the data feed the dashboard UI consumes; it is one-way HTTP streaming, not WebSocket.
+      parameters:
+      - name: utcoffset
+        in: query
+        description: Client UTC offset for day/hour bucketing.
+        required: false
+        schema:
+          type: string
+      - name: user
+        in: query
+        description: Account user id, for sessionless (token) access.
+        required: false
+        schema:
+          type: string
+      - name: token
+        in: query
+        description: Read-only API token for sessionless access (paired with user).
+        required: false
+        schema:
+          type: string
+      - name: demo
+        in: query
+        description: Set to a non-empty value to stream the public demo account.
+        required: false
+        schema:
+          type: string
+      responses:
+        '200':
+          description: Server-Sent Events stream of typed payloads (oldest-archive-date, archive, dump, nouser).
+          content:
+            text/event-stream:
+              schema:
+                type: string
+components:
+  securitySchemes:
+    sessionCookie:
+      type: apiKey
+      in: cookie
+      name: session
+      description: Session cookie set on login/register, used by the dashboard UI.
+    apiToken:
+      type: apiKey
+      in: query
+      name: token
+      description: Read-only account token, paired with the user query parameter, for sessionless access to /query and /dump.
