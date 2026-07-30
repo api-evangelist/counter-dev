@@ -8,7 +8,20 @@ description: Counter (counter.dev) is an open-source, privacy-friendly web analy
   data feed returns aggregated stats. Counter uses no cookies, no logging, and no
   IP fingerprinting. It is AGPL-3.0 licensed and can be self-hosted; the hosted
   service is pay-what-you-want.
-image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
+accessModel:
+  pricing: freemium
+  onboarding: open
+  trial: false
+  try_now: true
+  public: true
+  label: Freemium · Open access
+  confidence: high
+  source:
+  - plans
+  - authentication
+  generated: '2026-07-22'
+  method: derived
+image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/counter-dev.png
 tags:
 - Web Analytics
 - Privacy
@@ -19,75 +32,72 @@ created: '2026-06-21'
 modified: '2026-06-21'
 specificationVersion: '0.19'
 apis:
-- aid: counter-dev:counter-dev-tracking-api
-  name: Counter Tracking / Collect API
-  tags:
-  - Tracking
-  - Collect
-  - Analytics
-  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
-  humanURL: https://counter.dev/help/integration.html
-  baseURL: https://t.counter.dev
-  properties:
-  - url: https://counter.dev/help/integration.html
-    type: Documentation
-  - url: https://github.com/ihucos/counter.dev/blob/master/docs/script.js
-    type: APIReference
-  - url: openapi/counter-dev-openapi.yml
-    type: OpenAPI
-  - url: collections/counter-dev.postman_collection.json
-    type: PostmanCollection
-  - url: collections/counter-dev.opencollection.json
-    type: OpenCollection
-  description: Public, unauthenticated collect endpoints called by the 1.1 KB tracking
-    snippet. GET /track records one aggregated visit (referrer, screen, country,
-    language, device) keyed to a site data-id; POST /trackpage records a pageview
-    via the browser Beacon API. No cookies or IP addresses are stored.
-- aid: counter-dev:counter-dev-stats-api
-  name: Counter Stats / Dashboard Data API
-  tags:
-  - Stats
-  - Dashboard
-  - Reporting
-  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
-  humanURL: https://counter.dev/dashboard.html
-  baseURL: https://counter.dev
-  properties:
-  - url: https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/query.go
-    type: APIReference
-  - url: openapi/counter-dev-openapi.yml
-    type: OpenAPI
-  - url: collections/counter-dev.postman_collection.json
-    type: PostmanCollection
-  - url: collections/counter-dev.opencollection.json
-    type: OpenCollection
-  description: Token- or session-authenticated read endpoints that return aggregated
-    site stats. GET /query returns JSON archive data for a date range; GET /dump is
-    a Server-Sent Events stream pushing live and archived dump payloads. Sessionless
-    access uses user + token query parameters; a shareable read token is resettable
-    via /resettoken.
 - aid: counter-dev:counter-dev-account-api
   name: Counter Account API
+  description: The Account API from Counter — 4 operation(s) for account.
+  humanURL: https://counter.dev/help/integration.html
+  baseURL: https://t.counter.dev
   tags:
   - Account
-  - Authentication
-  - Users
-  image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/apis-json-logo.jpg
-  humanURL: https://counter.dev/
-  baseURL: https://counter.dev
   properties:
-  - url: https://github.com/ihucos/counter.dev/tree/master/backend/endpoints
-    type: APIReference
-  - url: openapi/counter-dev-openapi.yml
-    type: OpenAPI
-  - url: collections/counter-dev.postman_collection.json
-    type: PostmanCollection
-  - url: collections/counter-dev.opencollection.json
-    type: OpenCollection
-  description: Form-encoded account endpoints backing the dashboard - register, login,
-    logout, edit account, reset token, and delete user/site. Authentication is by
-    username and password establishing a session cookie; these are application
-    endpoints rather than a formally published developer API.
+  - type: OpenAPI
+    url: openapi/counter-dev-account-api-openapi.yml
+  - type: Documentation
+    url: https://counter.dev/help/integration.html
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/blob/master/docs/script.js
+  - type: PostmanCollection
+    url: collections/counter-dev.postman_collection.json
+  - type: OpenCollection
+    url: collections/counter-dev.opencollection.json
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/query.go
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/tree/master/backend/endpoints
+- aid: counter-dev:counter-dev-stats-api
+  name: Counter Stats API
+  description: The Stats API from Counter — 2 operation(s) for stats.
+  humanURL: https://counter.dev/help/integration.html
+  baseURL: https://t.counter.dev
+  tags:
+  - Stats
+  properties:
+  - type: OpenAPI
+    url: openapi/counter-dev-stats-api-openapi.yml
+  - type: Documentation
+    url: https://counter.dev/help/integration.html
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/blob/master/docs/script.js
+  - type: PostmanCollection
+    url: collections/counter-dev.postman_collection.json
+  - type: OpenCollection
+    url: collections/counter-dev.opencollection.json
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/query.go
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/tree/master/backend/endpoints
+- aid: counter-dev:counter-dev-tracking-api
+  name: Counter Tracking API
+  description: The Tracking API from Counter — 2 operation(s) for tracking.
+  humanURL: https://counter.dev/help/integration.html
+  baseURL: https://t.counter.dev
+  tags:
+  - Tracking
+  properties:
+  - type: OpenAPI
+    url: openapi/counter-dev-tracking-api-openapi.yml
+  - type: Documentation
+    url: https://counter.dev/help/integration.html
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/blob/master/docs/script.js
+  - type: PostmanCollection
+    url: collections/counter-dev.postman_collection.json
+  - type: OpenCollection
+    url: collections/counter-dev.opencollection.json
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/query.go
+  - type: APIReference
+    url: https://github.com/ihucos/counter.dev/tree/master/backend/endpoints
 common:
 - type: AgenticAccess
   url: agentic-access/counter-dev-agentic-access.yml
