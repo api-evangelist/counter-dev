@@ -1,0 +1,18 @@
+{
+  "provider": "counter-dev",
+  "sources": [
+    "counter-dev-account-api-openapi.yml",
+    "counter-dev-stats-api-openapi.yml",
+    "counter-dev-tracking-api-openapi.yml"
+  ],
+  "outputs": [
+    "counter-dev-account-api-openapi.yml",
+    "counter-dev-stats-api-openapi.yml",
+    "counter-dev-tracking-api-openapi.yml"
+  ],
+  "archived": [],
+  "errors": [],
+  "warnings": [],
+  "notes": [],
+  "skipped": []
+}
