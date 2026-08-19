@@ -1,0 +1,98 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Counter Account Stats API",
+    "version": "1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Stats",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Query archived stats for a date range.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://t.counter.dev/query",
+            "params": [
+              {
+                "name": "from",
+                "value": "",
+                "type": "query",
+                "description": "Start date (YYYY-MM-DD)."
+              },
+              {
+                "name": "to",
+                "value": "",
+                "type": "query",
+                "description": "End date (YYYY-MM-DD)."
+              },
+              {
+                "name": "user",
+                "value": "",
+                "type": "query",
+                "description": "Account user id, for sessionless (token) access."
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Read-only API token for sessionless access (paired with user)."
+              },
+              {
+                "name": "demo",
+                "value": "",
+                "type": "query",
+                "description": "Set to 1 to query the public demo account."
+              }
+            ]
+          },
+          "docs": "Returns aggregated, archived visit data for the authenticated account over a date range as JSON. Authentication is by session cookie or by a user + token pair (sessionless, read-only). When demo=1 the magic demo account is queried instead."
+        },
+        {
+          "info": {
+            "name": "Stream live and archived stats (Server-Sent Events).",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://t.counter.dev/dump",
+            "params": [
+              {
+                "name": "utcoffset",
+                "value": "",
+                "type": "query",
+                "description": "Client UTC offset for day/hour bucketing."
+              },
+              {
+                "name": "user",
+                "value": "",
+                "type": "query",
+                "description": "Account user id, for sessionless (token) access."
+              },
+              {
+                "name": "token",
+                "value": "",
+                "type": "query",
+                "description": "Read-only API token for sessionless access (paired with user)."
+              },
+              {
+                "name": "demo",
+                "value": "",
+                "type": "query",
+                "description": "Set to a non-empty value to stream the public demo account."
+              }
+            ]
+          },
+          "docs": "Opens a text/event-stream (Server-Sent Events) connection that pushes an initial archive payload and then live \"dump\" payloads (per-site counts, logs, and aggregated visits) as new visits arrive. Authenticated by session cookie, by user + token (sessionless), or via demo. This is the data feed the dashboard UI consumes; it is one-way HTTP streaming, not WebSocket."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

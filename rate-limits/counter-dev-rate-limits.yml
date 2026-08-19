@@ -4,7 +4,35 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Counter
 providerId: counter-dev
 created: '2026-06-21'
-modified: '2026-06-21'
+modified: '2026-08-13'
+generated: '2026-08-13'
+method: probed
+source: >-
+  Live header inspection of GET https://t.counter.dev/track and GET
+  https://counter.dev/query on 2026-08-13, plus a search of
+  https://counter.dev/help/ and https://github.com/ihucos/counter.dev for any
+  documented limit.
+limit_count: 0
+limit_count_note: >-
+  An honest zero. Counter documents no numeric rate limit, quota or throttle
+  anywhere, and the entries under `limits:` below record WHERE a limit would
+  apply, not a published value — none of them carries a number because none is
+  published.
+response_headers:
+  ratelimit_headers_returned: false
+  headers_observed_on_track:
+  - access-control-allow-origin
+  - cache-control
+  - content-type
+  - expires
+  headers_observed_on_query:
+  - content-type
+  detail: >-
+    No `RateLimit-*`, no `X-RateLimit-*`, no `Retry-After`, and no `429` on any
+    probed response. The only id-shaped headers present (cf-ray, report-to, nel)
+    are Cloudflare edge headers, not application signalling. An agent therefore
+    has NO runtime signal of remaining budget and must self-throttle.
+  throttle_status_code: null
 reconciled: false
 tags:
 - Web Analytics

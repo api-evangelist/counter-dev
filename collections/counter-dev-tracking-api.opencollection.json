@@ -1,0 +1,97 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Counter Account Tracking API",
+    "version": "1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Tracking",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Record an aggregated visit.",
+            "type": "http"
+          },
+          "http": {
+            "method": "GET",
+            "url": "https://t.counter.dev/track",
+            "params": [
+              {
+                "name": "id",
+                "value": "",
+                "type": "query",
+                "description": "Site data-id (per-account cached UUID). Either id, user, or site must be provided."
+              },
+              {
+                "name": "user",
+                "value": "",
+                "type": "query",
+                "description": "Account user id, used when id is not supplied."
+              },
+              {
+                "name": "site",
+                "value": "",
+                "type": "query",
+                "description": "Legacy alias for the user/account id, supported for backward compatibility."
+              },
+              {
+                "name": "referrer",
+                "value": "",
+                "type": "query",
+                "description": "Document referrer URL; only the host is retained."
+              },
+              {
+                "name": "screen",
+                "value": "",
+                "type": "query",
+                "description": "Screen resolution as WIDTHxHEIGHT (bucketed to known resolutions or \"Other\")."
+              },
+              {
+                "name": "utcoffset",
+                "value": "",
+                "type": "query",
+                "description": "Client UTC offset, used to bucket the visit into the correct local day/hour."
+              },
+              {
+                "name": "country",
+                "value": "",
+                "type": "query",
+                "description": "Two-letter country code; if omitted the CF-IPCountry header is used."
+              }
+            ]
+          },
+          "docs": "Called by the tracking snippet ~4.5s after load, once per tab (guarded by a sessionStorage flag). Records a single aggregated visit for the site identified by the data-id. Requires an Origin header (used to derive the site id). No cookies are set and no IP address is stored; country may be supplied explicitly or derived from the CF-IPCountry header. Bots and localhost origins are ignored."
+        },
+        {
+          "info": {
+            "name": "Record a pageview.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://t.counter.dev/trackpage",
+            "body": {
+              "type": "form-urlencoded",
+              "data": [
+                {
+                  "name": "id",
+                  "value": ""
+                },
+                {
+                  "name": "page",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Called by the tracking snippet via the browser Beacon API on every page load to record a pageview counter for the given path. Requires an Origin header. Body is application/x-www-form-urlencoded."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

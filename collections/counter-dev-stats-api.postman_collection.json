@@ -1,0 +1,266 @@
+{
+  "item": [
+    {
+      "id": "909fb93b-3488-4dfd-ae0d-ce4ab0817274",
+      "name": "Stats",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "87a5e9eb-3749-4df5-8231-3054e4ab5af5",
+          "name": "Query archived stats for a date range.",
+          "request": {
+            "name": "Query archived stats for a date range.",
+            "description": {
+              "content": "Returns aggregated, archived visit data for the authenticated account over a date range as JSON. Authentication is by session cookie or by a user + token pair (sessionless, read-only). When demo=1 the magic demo account is queried instead.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "query"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "from",
+                  "value": "<date>",
+                  "description": "(Required) Start date (YYYY-MM-DD)."
+                },
+                {
+                  "disabled": false,
+                  "key": "to",
+                  "value": "<date>",
+                  "description": "(Required) End date (YYYY-MM-DD)."
+                },
+                {
+                  "disabled": false,
+                  "key": "user",
+                  "value": "<string>",
+                  "description": "Account user id, for sessionless (token) access."
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Read-only API token for sessionless access (paired with user)."
+                },
+                {
+                  "disabled": false,
+                  "key": "demo",
+                  "value": "<string>",
+                  "description": "Set to 1 to query the public demo account."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "application/json"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "3e345f3b-5e21-44a3-a2ab-d46ff2abf501",
+              "name": "Aggregated archive data for the requested range.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "query"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "from",
+                      "value": "<date>"
+                    },
+                    {
+                      "key": "to",
+                      "value": "<date>"
+                    },
+                    {
+                      "key": "user",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "demo",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "application/json"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "application/json"
+                }
+              ],
+              "body": "{}",
+              "cookie": [],
+              "_postman_previewlanguage": "json"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "f015ee73-3aff-4065-a783-8b4d50db732e",
+          "name": "Stream live and archived stats (Server-Sent Events).",
+          "request": {
+            "name": "Stream live and archived stats (Server-Sent Events).",
+            "description": {
+              "content": "Opens a text/event-stream (Server-Sent Events) connection that pushes an initial archive payload and then live \"dump\" payloads (per-site counts, logs, and aggregated visits) as new visits arrive. Authenticated by session cookie, by user + token (sessionless), or via demo. This is the data feed the dashboard UI consumes; it is one-way HTTP streaming, not WebSocket.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "dump"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "utcoffset",
+                  "value": "<string>",
+                  "description": "Client UTC offset for day/hour bucketing."
+                },
+                {
+                  "disabled": false,
+                  "key": "user",
+                  "value": "<string>",
+                  "description": "Account user id, for sessionless (token) access."
+                },
+                {
+                  "disabled": false,
+                  "key": "token",
+                  "value": "<string>",
+                  "description": "Read-only API token for sessionless access (paired with user)."
+                },
+                {
+                  "disabled": false,
+                  "key": "demo",
+                  "value": "<string>",
+                  "description": "Set to a non-empty value to stream the public demo account."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/event-stream"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "e2a47249-e099-422a-9785-8ba25bcbbaae",
+              "name": "Server-Sent Events stream of typed payloads (oldest-archive-date, archive, dump, nouser).",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "dump"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "utcoffset",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "user",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "token",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "demo",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/event-stream"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/event-stream"
+                }
+              ],
+              "body": "string",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://t.counter.dev",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "68f0e492-3fc5-4022-865a-171ec0bd91fb",
+    "name": "Counter Account Stats API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Counter (counter.dev) is an open-source, privacy-friendly web analytics service. This specification documents the real HTTP surface of the Counter server as implemented in the AGPL-3.0 source at https://github.com/ihucos/counter.dev. The tracking/collect endpoints are public and unauthenticated and are called by the browser tracking snippet. The stats endpoints return aggregated data and are protected either by a session cookie or by a user + token pair (sessionless, read-only). The account endpoints back the dashboard UI and are not a formally published developer API. Endpoint paths are derived directly from the server source; request/response schemas beyond the documented query parameters are not formally published by the project, so responses are described rather than fully schematized.\n\nContact Support:\n Name: Counter (ihucos)",
+      "type": "text/plain"
+    }
+  }
+}

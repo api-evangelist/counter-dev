@@ -1,0 +1,160 @@
+generated: '2026-08-13'
+method: derived
+source: >-
+  openapi/ in this repo, live probes of https://counter.dev and
+  https://t.counter.dev on 2026-08-13, https://counter.dev/pages/privacy.html,
+  https://counter.dev/pages/imprint.html, and the AGPL-3.0 source at
+  https://github.com/ihucos/counter.dev.
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter claims conformance to no industry standard and holds no certification.
+  It is a single-maintainer open-source project, not a vendor with a compliance
+  programme. Every assertion below is an OBSERVATION about the implementation,
+  not a claim Counter makes about itself. NO `Compliance` pointer is wired in
+  apis.yml, because there is no published certification, audit report or
+  compliance page to point at — see security/counter-dev-trust-center.yml
+  (absent) and the vulnerability-disclosure probe, both of which returned nothing.
+
+standards:
+- id: oauth2
+  conforms: false
+  evidence: >-
+    No OAuth 2.0 surface. No authorization endpoint, no token endpoint, and
+    /.well-known/oauth-authorization-server returns 404 on both hosts. Auth is a
+    static per-account token plus a session cookie.
+- id: oidc
+  conforms: false
+  evidence: /.well-known/openid-configuration returns 404 on both hosts.
+- id: rfc9457
+  conforms: false
+  evidence: >-
+    Errors are bare plain-text bodies with no problem+json media type and no
+    machine-readable code. See errors/counter-dev-problem-types.yml.
+- id: rfc9116
+  conforms: false
+  evidence: >-
+    No /.well-known/security.txt (404 on both hosts). A security contact exists
+    only as prose in the imprint and privacy policy (hey@counter.dev).
+- id: rfc8594
+  conforms: false
+  evidence: No Sunset or Deprecation response headers on any probed endpoint.
+- id: rfc8615
+  conforms: false
+  evidence: >-
+    No /.well-known/ URI namespace is served at all; every probed path returns
+    the Go default 404 body.
+- id: idempotency
+  conforms: false
+  evidence: >-
+    No Idempotency-Key header or equivalent. GET /track mutates counters, so the
+    surface is not even HTTP-method-idempotent. See
+    conventions/counter-dev-conventions.yml.
+- id: pagination
+  conforms: false
+  evidence: >-
+    No cursor, offset, limit or Link header on GET /query. Result size is bounded
+    by narrowing the date range, and long-tail values are truncated server-side
+    at 100 entries per sorted-set field.
+- id: rate-limit-headers
+  conforms: false
+  evidence: >-
+    No RateLimit-*, X-RateLimit-* or Retry-After header observed on GET /track or
+    GET /query, and no 429 is issued.
+- id: cors
+  conforms: partial
+  evidence: >-
+    GET /track sets `Access-Control-Allow-Origin: *` explicitly. The data
+    endpoints /query and /dump set no CORS headers and are therefore not callable
+    from third-party browser JavaScript.
+- id: sse
+  conforms: true
+  evidence: >-
+    GET /dump implements the WHATWG Server-Sent Events wire format correctly —
+    `Content-Type: text/event-stream`, `Cache-Control: no-cache`,
+    `Connection: keep-alive`, and `data: <json>\n\n` frames flushed per event
+    (backend/lib/ctx.go SendEventSourceData). Verified live against
+    https://counter.dev/dump?demo=1. It does NOT use the optional `event:` field
+    — the event kind is carried inside the JSON payload as a `type` key, so a
+    consumer must parse the body to dispatch. It also emits no `id:` field, so
+    Last-Event-ID resumption is unavailable.
+- id: rfc6265
+  conforms: true
+  evidence: >-
+    Session state is a standard cookie (`swa`) issued through gorilla/sessions.
+- id: openapi
+  conforms: false
+  evidence: >-
+    Counter publishes no OpenAPI. The specifications in openapi/ were derived by
+    API Evangelist from the AGPL-3.0 server source and are labelled as such in
+    their info.description.
+- id: asyncapi
+  conforms: false
+  evidence: >-
+    Counter publishes no AsyncAPI. The document in asyncapi/ was derived by API
+    Evangelist from dump.go and a live stream capture.
+- id: gdpr
+  conforms: unverified
+  evidence: >-
+    Counter publishes a GDPR-shaped privacy policy enumerating the data-subject
+    rights (access, rectification, erasure, restriction, objection, portability),
+    names Linode LLC in Frankfurt, Germany as the processor, and names the German
+    federal DPA (BfDI, poststelle@bfdi.bund.de) as the supervisory authority. A
+    TMG §5 imprint identifies the responsible person. These are the disclosures a
+    German operator is legally required to make — they are NOT a certification,
+    an audit, or a DPA, and no evidence of an assessment is published. Recorded
+    as unverified, not as conforming.
+  url: https://counter.dev/pages/privacy.html
+- id: soc2
+  conforms: false
+  evidence: No SOC 2 report, trust centre or audit reference exists.
+- id: iso27001
+  conforms: false
+  evidence: No ISO 27001 certification published.
+- id: pci-dss
+  conforms: false
+  evidence: Not applicable — Counter processes no card data.
+- id: hipaa
+  conforms: false
+  evidence: Not applicable.
+
+architectural_claims:
+  description: >-
+    Counter's substantive claims are architectural rather than certificatory, and
+    unusually they are verifiable in the source rather than asserted in
+    marketing.
+  claims:
+  - claim: No cookies used for tracking
+    verified: true
+    evidence: >-
+      The tracking snippet sets no cookie; uniqueness is derived from
+      sessionStorage plus a referrer check. The only cookie in the system is the
+      dashboard session cookie for logged-in account holders.
+  - claim: No IP addresses stored
+    verified: true
+    evidence: >-
+      backend/endpoints/track.go reads the Cloudflare CF-IPCountry header (or an
+      explicit `country` parameter) and persists only the two-letter country code.
+      The remote address is never written.
+  - claim: No individual-visitor records
+    verified: true
+    evidence: >-
+      The Visit map is transient and folded into Redis counters immediately; no
+      per-visitor entity is persisted anywhere. See
+      data-model/counter-dev-data-model.yml.
+  - claim: Data is forgotten over time
+    verified: true
+    evidence: >-
+      Redis buckets carry EXPIREAT — daily buckets expire after two days,
+      monthly at next month, yearly at next year. Only the daily SQL archive
+      (introduced 2022-09-19) persists indefinitely.
+  - claim: Open source and self-hostable
+    verified: true
+    evidence: >-
+      AGPL-3.0, full server source published, official self-host repository and
+      CLI at https://github.com/ihucos/counter.dev-selfhost.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

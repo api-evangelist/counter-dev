@@ -1,0 +1,166 @@
+generated: '2026-08-13'
+method: probed
+source: >-
+  Live probes of https://counter.dev and https://t.counter.dev on 2026-08-13,
+  the OpenAPI in openapi/, and the AGPL-3.0 server source at
+  https://github.com/ihucos/counter.dev (backend/lib/ctx.go, backend/lib/app.go,
+  backend/endpoints/).
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter is a small Go service with a hand-rolled HTTP surface and no published
+  API convention document. The conventions below are observed, not stated: the
+  project does not describe itself as offering a developer API, so nothing here
+  is a promise Counter has made. The load-bearing facts for an integrator are
+  that there is no versioning, no idempotency mechanism, no pagination, no
+  rate-limit signalling, no request id, and errors are bare plain-text strings.
+
+authentication:
+  style: api-key
+  mechanisms:
+  - name: Read-only account token
+    transport: query parameters
+    detail: >-
+      `?user=<account-id>&token=<token>` on GET /query and GET /dump. Verified in
+      `Ctx.GetSessionlessUserId()`. This is the only sessionless mechanism and it
+      is READ-ONLY — it grants no account-mutating operation.
+    caveat: >-
+      The credential travels in the URL query string, so it lands in browser
+      history, proxy logs and Referer headers. There is no header-based
+      alternative.
+  - name: Session cookie
+    transport: cookie
+    detail: >-
+      Cookie named `swa` (gorilla/sessions cookie store), set by POST /login and
+      POST /register. Backs the dashboard UI. Note the OpenAPI records the cookie
+      as `session`; the source names it `swa`.
+  - name: Anonymous
+    transport: none
+    detail: >-
+      GET /track, POST /trackpage and the `demo=1` variants of /query and /dump
+      require no credential at all.
+  cross_reference: authentication/counter-dev-authentication.yml
+
+idempotency:
+  supported: false
+  header: null
+  detail: >-
+    NO idempotency mechanism exists. There is no Idempotency-Key header, no
+    request-deduplication window, and no retry-safe write. GET /track is
+    deliberately NON-IDEMPOTENT despite being a GET — each call increments Redis
+    counters via ZINCRBY/HINCRBY (backend/models/site.go), so a retried or
+    prefetched /track double-counts. The only deduplication is client-side and
+    best-effort: the tracking snippet writes a `_swa` sessionStorage flag and
+    checks document.referrer before firing, which bounds duplicates per tab but
+    guarantees nothing server-side.
+  no_pointer_note: >-
+    No `Idempotency` pointer is wired in apis.yml — there is nothing to point at.
+
+pagination:
+  supported: false
+  style: none
+  detail: >-
+    GET /query takes a `from`/`to` date range and returns the entire aggregated
+    result for that window in one JSON body. There is no cursor, offset, limit or
+    page parameter, and no Link header. Bounding a response means narrowing the
+    date range. Result cardinality is instead capped server-side: sorted-set
+    fields (lang, ref, loc, page) are trimmed to `zetMaxSize = 100` entries, so
+    long-tail values silently fall out of the data rather than being paginated.
+
+filtering_and_expansion:
+  field_selection: false
+  expansion: false
+  detail: >-
+    No sparse-fieldset, `fields=`, `expand=` or `include=` parameter anywhere on
+    the surface. The response shape is fixed per endpoint.
+
+versioning:
+  scheme: none
+  in_path: false
+  in_header: false
+  detail: >-
+    Endpoints are unversioned — `/query`, `/track`, `/dump` carry no `/v1`
+    prefix, and no version header is read or returned. The repository publishes
+    no semver tags and no GitHub Releases, so there is no artifact a consumer
+    could pin to. Compatibility is maintained by never removing anything: the
+    legacy `site` parameter on /track is kept with the source comment "this has
+    to be supported until the end of time".
+  cross_reference: lifecycle/counter-dev-lifecycle.yml
+
+error_envelope:
+  format: plain-text
+  rfc9457: false
+  detail: >-
+    Bare string body, no wrapper, no code. See
+    errors/counter-dev-problem-types.yml, including the finding that internal Go
+    error text is returned verbatim on 500.
+
+rate_limit_signalling:
+  headers_returned: false
+  detail: >-
+    No X-RateLimit-*, no RateLimit-* (RFC 9331 style), no Retry-After, and no 429
+    on any probed response. Verified on GET /track and GET /query on 2026-08-13.
+  cross_reference: rate-limits/counter-dev-rate-limits.yml
+
+request_tracing:
+  request_id: false
+  detail: >-
+    Counter returns no request id, trace id or correlation header. The only
+    id-shaped response headers observed are Cloudflare edge headers (cf-ray,
+    report-to) which belong to the CDN, not the application, and are not
+    referenced anywhere in Counter's own error handling or support process.
+
+content_types:
+  request:
+  - application/x-www-form-urlencoded
+  - query-string only (GET)
+  response:
+  - text/plain; charset=utf-8
+  detail: >-
+    CONTENT-TYPE DEFECT — GET /query returns a JSON document but labels it
+    `text/plain; charset=utf-8`. `Ctx.ReturnJSON` marshals to JSON and hands the
+    string to `Ctx.Return`, which never sets a Content-Type, so Go's sniffer
+    falls back to text/plain. Verified live on 2026-08-13. A strict client that
+    dispatches on Content-Type will refuse to parse a well-formed JSON response.
+    GET /dump does set `text/event-stream` explicitly.
+
+cors:
+  enabled: partial
+  detail: >-
+    GET /track sets `Access-Control-Allow-Origin: *` explicitly
+    (backend/endpoints/track.go) so the browser snippet does not log an error.
+    The data endpoints /query and /dump set no CORS headers, so they are not
+    callable from browser JavaScript on a third-party origin. The Origin header
+    is load-bearing on the collect endpoints — it is how the site id is derived,
+    not merely a security check.
+
+caching:
+  detail: >-
+    GET /track returns `Cache-Control: public, immutable` with an `Expires` set
+    to end-of-day in the caller's UTC offset. This is intentional: it lets the
+    browser cache suppress repeat collect calls within the same day, and is part
+    of how Counter counts unique visits without cookies.
+
+streaming:
+  detail: >-
+    GET /dump is Server-Sent Events (text/event-stream, Cache-Control: no-cache,
+    Connection: keep-alive), one-way HTTP streaming rather than WebSocket. The
+    server sets no write timeout for this reason (backend/lib/app.go). Payloads
+    are typed envelopes `{"type": ..., "payload": ...}` — see
+    asyncapi/counter-dev-stats-asyncapi.yml.
+
+host_routing:
+  detail: >-
+    Both https://counter.dev and https://t.counter.dev serve the SAME endpoint
+    set — verified 2026-08-13 by calling /query, /track, /login and /trackpage on
+    each and receiving identical responses. The split is conventional, not
+    technical: the tracking snippet defaults its `data-server` to
+    https://t.counter.dev while the dashboard runs on https://counter.dev. Host
+    routing in backend/lib/app.go affects only static-file serving, not endpoint
+    dispatch. `simple-web-analytics.com` is recognised as an alias host in the
+    same routing block.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

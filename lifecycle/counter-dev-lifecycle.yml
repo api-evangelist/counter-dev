@@ -1,0 +1,114 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://github.com/ihucos/counter.dev (releases + tags APIs, both empty),
+  https://github.com/ihucos/counter.dev-selfhost/releases, https://counter.dev/,
+  https://counter.dev/help/, https://counter.dev/blog, and live probes of
+  status.counter.dev on 2026-08-13.
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter publishes no lifecycle commitments of any kind — no versioning policy,
+  no deprecation policy, no SLA, no status page, and no changelog. The server
+  repository cuts no tags and no releases. Backwards compatibility is maintained
+  informally, by never removing anything.
+
+versioning:
+  policy_published: false
+  scheme: none
+  url: null
+  detail: >-
+    Endpoints are unversioned and the repository publishes neither semver tags
+    nor GitHub Releases (both APIs return an empty list as of 2026-08-13). The
+    only resolvable version for the Go module is a commit pseudo-version.
+
+deprecation:
+  policy_published: false
+  url: null
+  sunset_header: false
+  deprecation_header: false
+  rfc8594: false
+  detail: >-
+    No deprecation policy, and no RFC 8594 Sunset or Deprecation response
+    headers on any probed endpoint. NO `Deprecation` pointer is wired in
+    apis.yml because no policy exists.
+  observed_deprecations:
+  - element: '`site` query parameter on GET /track'
+    status: legacy-alias
+    replacement: '`user` (or preferably the per-account `id` UUID)'
+    removal_date: null
+    evidence: >-
+      backend/endpoints/track.go carries the comment "this has to be supported
+      until the end of time, or alternatively all current users are not using
+      that option." The parameter is kept indefinitely rather than deprecated —
+      an informal never-break posture, not a deprecation process.
+  - element: single-page-only tracking
+    status: reversed
+    evidence: >-
+      Two claims in the project README are struck through, recording that Counter
+      reversed earlier design decisions (tracking only the first page viewed, and
+      shipping an inline rather than externally-hosted script). The reversal is
+      visible only as strikethrough prose in the README; there is no dated entry
+      anywhere describing when the behaviour changed or what a consumer should
+      expect.
+
+status_page:
+  present: false
+  url: null
+  detail: >-
+    No status page. https://status.counter.dev/ does not resolve (connection
+    failure, curl exit code 6 / HTTP 000 on 2026-08-13) and no status host is
+    linked from counter.dev, the help pages, or the README. NO `StatusPage`
+    pointer is wired in apis.yml.
+
+sla:
+  published: false
+  uptime_target: null
+  detail: >-
+    No SLA, uptime target, or support-response commitment. The hosted service is
+    pay-what-you-want and the README describes it as run "by hand" on rented
+    VPS capacity by a single maintainer, with costs covered by donations.
+
+changelog:
+  present: false
+  url: null
+  detail: >-
+    No dated changelog. The blog at https://counter.dev/blog carries occasional
+    product essays (seven posts between 2022-05 and 2025-08) but is not a change
+    record — entries do not enumerate API or behavioural changes. NO `ChangeLog`
+    pointer is wired and no changelog/ artifact is written, because there is
+    nothing to structure.
+
+support:
+  channels:
+  - type: email
+    value: hey@counter.dev
+    source: https://counter.dev/pages/imprint.html
+  - type: issue-tracker
+    value: https://github.com/ihucos/counter.dev/issues
+    detail: 44 open issues as of 2026-08-13.
+
+maintenance_signals:
+  server_repo_last_push: '2026-04-29'
+  server_repo_stars: 1008
+  selfhost_last_release: '2023-09-13'
+  selfhost_release_version: '0.2.1'
+  cdn_script_last_modified: '2026-04-29'
+  detail: >-
+    The hosted service is actively maintained (server repo and CDN script both
+    touched 2026-04-29), but the self-host distribution has not shipped a release
+    since 2023-09-13 and its README still labels itself beta with archiving
+    unimplemented. Three experimental rewrite repositories (counter.dev-rewrite
+    in Django, x-counter.dev, x-t.counter.dev) were pushed in 2026 and are
+    labelled "TESTING" by the maintainer — a rewrite is in progress but no
+    migration path or timeline is published.
+
+licensing:
+  spdx: AGPL-3.0
+  url: https://github.com/ihucos/counter.dev/blob/master/LICENSE
+  self_host: https://github.com/ihucos/counter.dev-selfhost
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

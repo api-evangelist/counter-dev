@@ -1,16 +1,16 @@
-generated: '2026-07-11'
+generated: '2026-08-13'
 method: probed
 source: live DNS/TLS/HTTP probes of apis.yml + OpenAPI hosts
 hosts:
 - host: counter.dev
   https: true
   tls_version: TLSv1.3
-  cert_expires: Aug 27 17:00:23 2026 GMT
+  cert_expires: Oct 25 17:30:52 2026 GMT
   hsts: false
 - host: t.counter.dev
   https: true
   tls_version: TLSv1.3
-  cert_expires: Aug 27 17:00:23 2026 GMT
+  cert_expires: Oct 25 17:30:52 2026 GMT
   hsts: null
 domains:
 - domain: counter.dev

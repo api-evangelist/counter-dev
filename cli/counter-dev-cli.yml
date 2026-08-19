@@ -1,0 +1,97 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://github.com/ihucos/counter.dev-selfhost (README + Releases API,
+  fetched 2026-08-13).
+provider: Counter
+providerId: counter-dev
+name: cntr
+
+summary: >-
+  Counter ships one first-party CLI, `cntr`, distributed as a prebuilt
+  linux-amd64 binary from GitHub Releases on the counter.dev-selfhost repository.
+  It is an OPERATOR tool for running a self-hosted Counter instance — it creates
+  local accounts and serves the application. It is NOT an API client: it offers
+  no command that reads stats, queries an account, or talks to the hosted
+  counter.dev service.
+
+official: true
+latest_version: '0.2.1'
+latest_published: '2023-09-13'
+release_history:
+- version: '0.2.1'
+  published: '2023-09-13'
+  title: Fix Content-Type on /load.js endpoint
+- version: '0.2'
+  published: '2023-03-27'
+- version: '0.1'
+  published: '2023-03-27'
+  title: First release
+currency_note: >-
+  DECAY SIGNAL — the newest release is nearly three years old (2023-09-13) while
+  the server it self-hosts was last pushed 2026-04-29. The self-host README
+  labels the build beta and states that archiving functionality is not
+  implemented in this iteration, so the CLI cannot serve the /query archive
+  endpoint the hosted service offers.
+
+install:
+- method: github-release-binary
+  platform: linux-amd64
+  command: |
+    curl -L https://github.com/ihucos/counter.dev-selfhost/releases/download/0.2.1/cntr-linux-amd64 > /usr/local/bin/cntr
+    chmod +x /usr/local/bin/cntr
+  verified_status: 200
+- method: source
+  command: go build
+  repo: https://github.com/ihucos/counter.dev-selfhost
+package_managers_note: >-
+  Not distributed through Homebrew, apt, npm or any other package manager. A
+  single linux-amd64 asset is the whole distribution; there is no macOS or
+  Windows build.
+
+commands:
+- name: createuser
+  summary: Create a local Counter account on the self-hosted instance.
+  usage: cntr createuser --redis-url redis://localhost:6379 --utc-offset 2 admin
+  flags:
+  - name: --redis-url
+    description: Connection URL for the backing Redis instance.
+  - name: --utc-offset
+    description: The account's timezone UTC offset, used for day/hour bucketing.
+  arguments:
+  - name: username
+    description: The account id to create. Password is prompted interactively.
+- name: serve
+  summary: Start the Counter HTTP server.
+  usage: cntr serve --redis-url redis://localhost:6379 --bind :80
+  flags:
+  - name: --redis-url
+    description: Connection URL for the backing Redis instance.
+  - name: --bind
+    description: Address and port to listen on.
+
+flows:
+- name: Stand up a self-hosted Counter
+  steps:
+  - Install the cntr binary from GitHub Releases.
+  - Run a Redis server (the only hard dependency).
+  - '`cntr createuser --redis-url ... --utc-offset <n> <username>` and set a password.'
+  - '`cntr serve --redis-url ... --bind :80`.'
+  - Log in to the served UI and copy the tracking snippet from the dashboard.
+
+not_present:
+- any command that reads or exports stats
+- any command that authenticates against the hosted counter.dev service
+- shell completions
+- a documented `--version` or `--help` reference page
+
+related:
+  helper_scripts: >-
+    The main repository carries operator Python scripts under scripts/
+    (activeusers.py, export.py, migrate.py, chgpwd.py, stats.py) which are
+    maintainer tooling rather than a supported CLI, and are not packaged or
+    documented for users.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

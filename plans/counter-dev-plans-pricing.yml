@@ -4,7 +4,24 @@ schema: https://raw.githubusercontent.com/api-evangelist/interface-research/main
 provider: Counter
 providerId: counter-dev
 created: '2026-06-21'
-modified: '2026-06-21'
+modified: '2026-08-13'
+generated: '2026-08-13'
+method: searched
+source: >-
+  https://counter.dev/ , https://counter.dev/welcome.html ,
+  https://counter.dev/blog (the "Pay what you want - can it work?" post) and
+  https://github.com/ihucos/counter.dev — searched 2026-08-13.
+plan_count: 2
+pricing_page_published: false
+pricing_page_note: >-
+  Counter publishes NO pricing page. https://counter.dev/pricing returns 404 and
+  no pricing or plans link appears on the homepage, the help pages, or the
+  README. The commercial model is stated as prose on the sign-up page
+  ("Pay when ready") and in the blog, and the actual payment interface lives
+  behind login in the dashboard (static/components/base/pwyw.js). The two plans
+  below are therefore the real, complete offering, not an extract from a tier
+  table — there is no tier table to extract. No `Pricing` pointer is wired in
+  apis.yml because there is no pricing page to link.
 reconciled: false
 tags:
 - Web Analytics

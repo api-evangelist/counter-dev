@@ -1,0 +1,386 @@
+{
+  "item": [
+    {
+      "id": "2bc923f5-8f88-4f32-91d1-d8796318edc5",
+      "name": "Tracking",
+      "description": {
+        "content": "",
+        "type": "text/plain"
+      },
+      "item": [
+        {
+          "id": "0bd04d2e-d288-4a39-815d-8a494503ce85",
+          "name": "Record an aggregated visit.",
+          "request": {
+            "name": "Record an aggregated visit.",
+            "description": {
+              "content": "Called by the tracking snippet ~4.5s after load, once per tab (guarded by a sessionStorage flag). Records a single aggregated visit for the site identified by the data-id. Requires an Origin header (used to derive the site id). No cookies are set and no IP address is stored; country may be supplied explicitly or derived from the CF-IPCountry header. Bots and localhost origins are ignored.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "track"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [
+                {
+                  "disabled": false,
+                  "key": "id",
+                  "value": "<string>",
+                  "description": "Site data-id (per-account cached UUID). Either id, user, or site must be provided."
+                },
+                {
+                  "disabled": false,
+                  "key": "user",
+                  "value": "<string>",
+                  "description": "Account user id, used when id is not supplied."
+                },
+                {
+                  "disabled": false,
+                  "key": "site",
+                  "value": "<string>",
+                  "description": "Legacy alias for the user/account id, supported for backward compatibility."
+                },
+                {
+                  "disabled": false,
+                  "key": "referrer",
+                  "value": "<string>",
+                  "description": "Document referrer URL; only the host is retained."
+                },
+                {
+                  "disabled": false,
+                  "key": "screen",
+                  "value": "<string>",
+                  "description": "Screen resolution as WIDTHxHEIGHT (bucketed to known resolutions or \"Other\")."
+                },
+                {
+                  "disabled": false,
+                  "key": "utcoffset",
+                  "value": "<string>",
+                  "description": "Client UTC offset, used to bucket the visit into the correct local day/hour."
+                },
+                {
+                  "disabled": false,
+                  "key": "country",
+                  "value": "<string>",
+                  "description": "Two-letter country code; if omitted the CF-IPCountry header is used."
+                }
+              ],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Accept",
+                "value": "text/plain"
+              }
+            ],
+            "method": "GET",
+            "auth": null
+          },
+          "response": [
+            {
+              "id": "c87bdbff-0f13-4e26-8f79-122b5f743cac",
+              "name": "Visit recorded. Body is the plain text \"OK\".",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "track"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "user",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "site",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "referrer",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "screen",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "utcoffset",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "country",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "header": [
+                  {
+                    "key": "Accept",
+                    "value": "text/plain"
+                  }
+                ],
+                "method": "GET",
+                "body": {}
+              },
+              "status": "OK",
+              "code": 200,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "string",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "36af1e43-c12d-4d42-89f7-a33570c52c11",
+              "name": "Bad request - missing site identifier or missing/invalid Origin header.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "track"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [
+                    {
+                      "key": "id",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "user",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "site",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "referrer",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "screen",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "utcoffset",
+                      "value": "<string>"
+                    },
+                    {
+                      "key": "country",
+                      "value": "<string>"
+                    }
+                  ],
+                  "variable": []
+                },
+                "method": "GET",
+                "body": {}
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        },
+        {
+          "id": "04313be5-1aaa-453b-9852-f0802c9bd2b5",
+          "name": "Record a pageview.",
+          "request": {
+            "name": "Record a pageview.",
+            "description": {
+              "content": "Called by the tracking snippet via the browser Beacon API on every page load to record a pageview counter for the given path. Requires an Origin header. Body is application/x-www-form-urlencoded.",
+              "type": "text/plain"
+            },
+            "url": {
+              "path": [
+                "trackpage"
+              ],
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "query": [],
+              "variable": []
+            },
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/x-www-form-urlencoded"
+              }
+            ],
+            "method": "POST",
+            "auth": null,
+            "body": {
+              "mode": "urlencoded",
+              "urlencoded": [
+                {
+                  "disabled": false,
+                  "key": "id",
+                  "value": "<string>",
+                  "description": "Site data-id (per-account cached UUID)."
+                },
+                {
+                  "disabled": false,
+                  "key": "page",
+                  "value": "<string>",
+                  "description": "Page path (window.location.pathname)."
+                }
+              ]
+            }
+          },
+          "response": [
+            {
+              "id": "c72b30cc-f68c-43a6-ae91-0336ea5edbaa",
+              "name": "Pageview recorded. Empty body.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "trackpage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "Site data-id (per-account cached UUID).",
+                        "type": "text/plain"
+                      },
+                      "key": "id",
+                      "value": "<string>"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "Page path (window.location.pathname).",
+                        "type": "text/plain"
+                      },
+                      "key": "page",
+                      "value": "<string>"
+                    }
+                  ]
+                }
+              },
+              "status": "No Content",
+              "code": 204,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            },
+            {
+              "id": "dd794eb4-4cbe-410a-964b-4f5ea0634766",
+              "name": "Bad request - missing or invalid Origin header.",
+              "originalRequest": {
+                "url": {
+                  "path": [
+                    "trackpage"
+                  ],
+                  "host": [
+                    "{{baseUrl}}"
+                  ],
+                  "query": [],
+                  "variable": []
+                },
+                "method": "POST",
+                "body": {
+                  "mode": "urlencoded",
+                  "urlencoded": [
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "Site data-id (per-account cached UUID).",
+                        "type": "text/plain"
+                      },
+                      "key": "id",
+                      "value": "<string>"
+                    },
+                    {
+                      "disabled": false,
+                      "description": {
+                        "content": "Page path (window.location.pathname).",
+                        "type": "text/plain"
+                      },
+                      "key": "page",
+                      "value": "<string>"
+                    }
+                  ]
+                }
+              },
+              "status": "Bad Request",
+              "code": 400,
+              "header": [
+                {
+                  "key": "Content-Type",
+                  "value": "text/plain"
+                }
+              ],
+              "body": "",
+              "cookie": [],
+              "_postman_previewlanguage": "text"
+            }
+          ],
+          "event": [],
+          "protocolProfileBehavior": {
+            "disableBodyPruning": true
+          }
+        }
+      ],
+      "event": []
+    }
+  ],
+  "event": [],
+  "variable": [
+    {
+      "type": "string",
+      "value": "https://t.counter.dev",
+      "key": "baseUrl"
+    }
+  ],
+  "info": {
+    "_postman_id": "97a26b0f-43a8-4230-87cb-abc91915ae4d",
+    "name": "Counter Account Tracking API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": {
+      "content": "Counter (counter.dev) is an open-source, privacy-friendly web analytics service. This specification documents the real HTTP surface of the Counter server as implemented in the AGPL-3.0 source at https://github.com/ihucos/counter.dev. The tracking/collect endpoints are public and unauthenticated and are called by the browser tracking snippet. The stats endpoints return aggregated data and are protected either by a session cookie or by a user + token pair (sessionless, read-only). The account endpoints back the dashboard UI and are not a formally published developer API. Endpoint paths are derived directly from the server source; request/response schemas beyond the documented query parameters are not formally published by the project, so responses are described rather than fully schematized.\n\nContact Support:\n Name: Counter (ihucos)",
+      "type": "text/plain"
+    }
+  }
+}

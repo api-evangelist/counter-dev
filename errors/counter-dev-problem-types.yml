@@ -1,0 +1,163 @@
+generated: '2026-08-13'
+method: probed
+source: >-
+  Live unauthenticated probes of https://counter.dev and https://t.counter.dev
+  on 2026-08-13, reconciled against the AGPL-3.0 server source at
+  https://github.com/ihucos/counter.dev/blob/master/backend/lib/ctx.go and the
+  endpoint handlers in backend/endpoints/.
+provider: Counter
+providerId: counter-dev
+
+format: plain-text
+rfc9457: false
+envelope:
+  content_type: text/plain; charset=utf-8
+  shape: >-
+    Counter returns errors as a BARE PLAIN-TEXT STRING in the response body with
+    no wrapper object, no machine-readable code, and no field pointing at the
+    offending input. `Ctx.Return(content string, statusCode int)` in
+    backend/lib/ctx.go writes the message straight to the socket. There is no
+    application/problem+json, no `error`/`message` JSON envelope, and no
+    correlation or request id in either the body or the response headers. A
+    consumer must string-match the body to distinguish causes.
+  machine_readable: false
+  error_codes_published: false
+
+leakage_finding:
+  severity: notable
+  description: >-
+    `Ctx.CatchError` maps ANY internal Go error to HTTP 500 and returns
+    `err.Error()` verbatim to the caller. Probed live: a malformed `from` date on
+    GET /query returned 500 with the raw Go time-parsing error
+    `parsing time "nope" as "2006-01-02": cannot parse "nope" as "2006"`, and an
+    empty `id` on POST /trackpage returned 500 with `No such user with uuid: `.
+    Both are caller input-validation failures being reported as server errors
+    with internal library detail attached — they should be 400s with a stable
+    code.
+  evidence:
+  - url: https://counter.dev/query?demo=1&from=nope&to=2026-08-02
+    status: 500
+    body: 'parsing time "nope" as "2006-01-02": cannot parse "nope" as "2006"'
+  - url: https://counter.dev/trackpage
+    status: 500
+    body: 'No such user with uuid: '
+
+problem_types:
+- status: 400
+  title: Missing site identifier
+  body: missing site param
+  operations:
+  - track
+  cause: >-
+    Neither `id`, `user` nor `site` was supplied on GET /track, so the server
+    cannot resolve which account the visit belongs to.
+  remediation: >-
+    Pass the per-account `id` (the cached UUID from the dashboard tracking
+    snippet). `user` and the legacy `site` alias are accepted as fallbacks.
+  observed: true
+  evidence_url: https://counter.dev/track
+- status: 400
+  title: Missing or invalid Origin header
+  body: 'Origin header can not be empty, not set or "null"'
+  operations:
+  - track
+  - trackpage
+  cause: >-
+    The collect endpoints derive the site id from the browser `Origin` header.
+    A request without one, or with the literal string "null", is rejected.
+  remediation: >-
+    Call the collect endpoints from a browser context that sends a real Origin,
+    or set the header explicitly. This is why a bare curl to /track fails and a
+    curl with `-H "Origin: https://example.com"` returns 200 "OK".
+  observed: true
+- status: 400
+  title: Ignoring due origin
+  body: Ignoring due origin
+  operations:
+  - track
+  cause: Origin host ends in `.translate.goog` (Google Translate proxy traffic).
+  remediation: >-
+    Not actionable by the caller — Counter deliberately drops translated-page
+    traffic so it is not double-counted.
+  observed: false
+  source_ref: backend/endpoints/track.go
+- status: 400
+  title: Missing input
+  body: 'Missing Input: user'
+  operations:
+  - login
+  - register
+  cause: A required form field (user, password) was absent from the request body.
+  remediation: >-
+    POST application/x-www-form-urlencoded with both `user` and `password`. The
+    message names the missing field after the colon.
+  observed: true
+  evidence_url: https://counter.dev/login
+- status: 403
+  title: Forbidden
+  body: Forbidden
+  operations:
+  - query
+  - dump
+  - resetToken
+  - logout
+  cause: >-
+    `Ctx.ForceUserId()` found no authenticated subject — no valid `swa` session
+    cookie, and no valid `user` + `token` pair. NOTE: an INVALID token produces
+    exactly the same 403 "Forbidden" as no token at all, so a caller cannot
+    distinguish "not authenticated" from "wrong credential" from the response.
+  remediation: >-
+    Supply the read-only token pair as query parameters
+    (`?user=<account>&token=<token>`), or authenticate the session by POSTing to
+    /login first.
+  observed: true
+  evidence:
+  - url: https://counter.dev/query?from=2026-08-01&to=2026-08-02
+    status: 403
+  - url: https://counter.dev/query?user=counter&token=BOGUS&from=2026-08-01&to=2026-08-02
+    status: 403
+- status: 405
+  title: Method Not Allowed
+  body: Method Not Allowed
+  operations:
+  - login
+  - register
+  - logout
+  cause: >-
+    `Ctx.CheckMethod(...)` rejects verbs the handler does not declare. Only
+    handlers that call CheckMethod enforce this — GET /query answered 200 to a
+    DELETE in a live probe, so method enforcement is inconsistent across the
+    surface.
+  remediation: Use the verb documented in the OpenAPI for the operation.
+  observed: false
+  source_ref: backend/lib/ctx.go
+- status: 500
+  title: Internal error (raw Go error text)
+  body: '<the underlying Go error message, verbatim>'
+  operations:
+  - query
+  - dump
+  - track
+  - trackpage
+  - login
+  - register
+  - resetToken
+  cause: >-
+    Any error reaching `Ctx.CatchError` — including caller input-validation
+    failures such as an unparseable date or an unknown site UUID.
+  remediation: >-
+    Validate `from`/`to` as YYYY-MM-DD and confirm the site `id` before calling.
+    The body is a Go error string, not a stable contract, and must not be parsed.
+  observed: true
+
+not_present:
+- rfc9457 application/problem+json
+- stable numeric or symbolic error codes
+- a documented error reference page
+- request/correlation id in body or headers
+- Retry-After on any status
+- distinct status for authentication-failed vs authentication-missing
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

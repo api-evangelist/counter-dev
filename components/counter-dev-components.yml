@@ -1,0 +1,124 @@
+generated: '2026-08-13'
+method: probed
+source: >-
+  https://cdn.counter.dev/script.js (fetched verbatim 2026-08-13),
+  https://github.com/ihucos/counter.dev/blob/master/static/components/counter-trackingcode.js,
+  https://counter.dev/help/integration.html, and the platform guides under
+  content/help/ in the same repository.
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter's entire consumer-facing integration surface is ONE embeddable browser
+  component: a ~1.1 KB tracking snippet loaded from cdn.counter.dev. There is no
+  element library, no embedded dashboard, and no hosted widget a customer can
+  drop into their own product. The dashboard's own web components are internal to
+  counter.dev and are not published for reuse.
+
+families:
+- name: Tracking snippet
+  kind: script-tag
+  official: true
+  loader: https://cdn.counter.dev/script.js
+  loader_status: 200
+  loader_pinned: false
+  loader_note: >-
+    The URL is unversioned. The snippet Counter generates in its own dashboard
+    (static/components/counter-trackingcode.js) hard-codes this exact unpinned
+    URL, so every site on the internet running Counter silently takes whatever
+    the CDN currently serves. Last-Modified observed
+    Wed, 29 Apr 2026 10:11:41 GMT. Served with
+    `access-control-allow-origin: *` from GitHub Pages behind Fastly.
+  embed: '<script src="https://cdn.counter.dev/script.js" data-id="YOUR-UUID" data-utcoffset="0"></script>'
+  placement: Immediately before the closing </head> tag.
+  attributes:
+  - name: data-id
+    required: true
+    description: >-
+      The per-account cached UUID shown in the Counter dashboard. Sent as the
+      `id` query parameter on /track and the `id` form field on /trackpage.
+  - name: data-utcoffset
+    required: false
+    description: >-
+      The account's UTC offset, used server-side to bucket the visit into the
+      correct local day and hour.
+  - name: data-server
+    required: false
+    default: https://t.counter.dev
+    description: >-
+      Overrides the collection host. This is the documented hook for pointing a
+      site at a SELF-HOSTED Counter instance; it is why the same public snippet
+      works for both the hosted service and a private deployment.
+  behaviour:
+    calls:
+    - operation: track
+      request: >-
+        GET {server}/track?referrer=&screen=WIDTHxHEIGHT&id=&utcoffset= — fired
+        via fetch() 4500 ms after load.
+      condition: >-
+        Only when sessionStorage has no `_swa` flag AND document.referrer is not
+        same-origin. This is how Counter counts unique visits without cookies.
+    - operation: trackpage
+      request: >-
+        POST {server}/trackpage with navigator.sendBeacon and a URLSearchParams
+        body of `id` and `page` (window.location.pathname).
+      condition: Every page load, unconditionally.
+    opt_out: >-
+      The snippet returns immediately if either sessionStorage or localStorage
+      holds a `doNotTrack` key — a real, documented-in-code per-visitor opt-out
+      a host site can set.
+    state_written:
+    - sessionStorage `_swa` (visit-dedup flag)
+    reads:
+    - document.referrer
+    - screen.width / screen.height
+    - window.location.pathname
+    no_cookies: true
+  size_bytes: 1112
+  source_repo: https://github.com/ihucos/x-cdn.counter.dev
+  variants:
+  - url: https://cdn.counter.dev/script-testing.js
+    status: 200
+    note: A second published script; its purpose is not documented by Counter.
+
+- name: Dashboard web components
+  kind: internal
+  official: true
+  published_for_reuse: false
+  note: >-
+    ihucos/counter.dev ships ~40 native custom elements under static/components/
+    (dashboard/graph.js, dashboard/pie.js, dashboard/visits.js,
+    counter-trackingcode.js, base/pwyw.js and others) built on plain
+    customElements.define with no framework. They are real components, but they
+    are the counter.dev dashboard's own UI — not distributed on any registry, not
+    documented, and not usable outside the application. Recorded for completeness;
+    NOT part of Counter's integration surface.
+
+platform_guides:
+  detail: >-
+    Counter documents where to paste the snippet on six hosted platforms rather
+    than shipping plugins for them. There is no WordPress plugin, Shopify app or
+    equivalent — each guide is manual snippet placement.
+  guides:
+  - platform: WordPress
+    url: https://counter.dev/help/wordpress.html
+  - platform: Shopify
+    url: https://counter.dev/help/shopify.html
+  - platform: Squarespace
+    url: https://counter.dev/help/squarespace.html
+  - platform: Wix
+    url: https://counter.dev/help/wix.html
+  - platform: Weebly
+    url: https://counter.dev/help/weebly.html
+  - platform: Backdrop
+    url: https://counter.dev/help/backdrop.html
+
+not_present:
+- embeddable dashboard or share-a-report widget
+- iframe embed for stats
+- React/Vue/Svelte component packages
+- a versioned or pinnable CDN build
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

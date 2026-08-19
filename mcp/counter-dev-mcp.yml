@@ -1,0 +1,129 @@
+generated: '2026-08-13'
+method: derived
+source: >-
+  openapi/counter-dev-stats-api-openapi.yml,
+  openapi/counter-dev-tracking-api-openapi.yml,
+  openapi/counter-dev-account-api-openapi.yml — plus negative searches of the
+  ihucos GitHub account, npm, and the counter.dev site for any published MCP
+  server.
+provider: Counter
+providerId: counter-dev
+status: candidate
+
+deployment:
+  mode: none
+  auth: api-key
+  verified: derived
+
+pointer_emitted: false
+pointer_note: >-
+  NO `MCPServer` pointer is wired in apis.yml. Counter ships no MCP server —
+  neither a hosted endpoint nor a stdio package exists on counter.dev, on npm,
+  or anywhere in the ihucos GitHub account (searched 2026-08-13). The tools
+  below are a DERIVED candidate surface: what an MCP server for Counter would
+  expose if someone built one from the existing OpenAPI. Wiring an MCPServer
+  pointer for a candidate would credit Counter with an agent surface it does not
+  serve.
+
+searched:
+- surface: hosted MCP endpoint on counter.dev / t.counter.dev
+  result: no such endpoint documented or advertised
+- surface: npm packages matching counter.dev / counterdev
+  result: no first-party package
+- surface: ihucos GitHub account repositories
+  result: >-
+    counter.dev, counter.dev-selfhost, counter.dev-rewrite, x-counter.dev,
+    x-cdn.counter.dev, x-t.counter.dev, counter.dev-django — none is an MCP
+    server
+- surface: /.well-known/oauth-authorization-server and /oauth-protected-resource
+  result: 404 on both hosts (see well-known/counter-dev-well-known.yml)
+
+auth_model_note: >-
+  A real Counter MCP server would authenticate with the read-only account token
+  pair (user + token query parameters, see
+  authentication/counter-dev-authentication.yml). Counter has no OAuth surface,
+  so there is no consent flow an MCP client could negotiate — a token would have
+  to be configured out of band.
+
+candidate_tools:
+- name: counter_query_stats
+  description: >-
+    Return aggregated, archived visit data for an account over a date range,
+    as JSON.
+  backing_operation: query
+  backing_path: GET /query
+  read_only: true
+  inputs:
+  - name: from
+    required: true
+    description: Start date (YYYY-MM-DD).
+  - name: to
+    required: true
+    description: End date (YYYY-MM-DD).
+  - name: user
+    required: false
+    description: Account user id, for sessionless token access.
+  - name: token
+    required: false
+    description: Read-only account token, paired with user.
+  - name: demo
+    required: false
+    description: Set to 1 to query the public demo account instead.
+- name: counter_stream_stats
+  description: >-
+    Open the Server-Sent Events feed of live and archived stats. Emits typed
+    payloads (oldest-archive-date, archive, dump, nouser). Long-lived; an MCP
+    binding would need to snapshot the first dump rather than hold the stream.
+  backing_operation: dump
+  backing_path: GET /dump
+  read_only: true
+  inputs:
+  - name: utcoffset
+    required: false
+    description: Client UTC offset for day/hour bucketing.
+  - name: user
+    required: false
+    description: Account user id, for sessionless token access.
+  - name: token
+    required: false
+    description: Read-only account token, paired with user.
+  - name: demo
+    required: false
+    description: Set to any non-empty value to stream the public demo account.
+- name: counter_track_visit
+  description: >-
+    Record a single aggregated visit for a tracked site. WRITE — mutates counts
+    and is not idempotent; intended for the browser snippet, not an agent.
+  backing_operation: track
+  backing_path: GET /track
+  read_only: false
+  requires_origin_header: true
+- name: counter_track_pageview
+  description: >-
+    Record a pageview counter for a path. WRITE — not idempotent; intended for
+    the browser Beacon call, not an agent.
+  backing_operation: trackpage
+  backing_path: POST /trackpage
+  read_only: false
+  requires_origin_header: true
+- name: counter_reset_token
+  description: >-
+    Reset the account read-only API token, invalidating the previous one.
+    DESTRUCTIVE — should be human-in-the-loop; see
+    agentic-access/counter-dev-agentic-access.yml where it is classified
+    safety-critical.
+  backing_operation: resetToken
+  backing_path: POST /resettoken
+  read_only: false
+
+excluded_from_candidate_surface:
+- operation: login
+  reason: Session establishment — credential handling, not an agent tool.
+- operation: register
+  reason: Account creation — credential handling, not an agent tool.
+- operation: logout
+  reason: Session teardown; meaningless for token-authenticated access.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

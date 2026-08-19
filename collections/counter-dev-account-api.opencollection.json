@@ -1,0 +1,96 @@
+{
+  "opencollection": "1.0.0",
+  "info": {
+    "name": "Counter Account API",
+    "version": "1.0"
+  },
+  "items": [
+    {
+      "info": {
+        "name": "Account",
+        "type": "folder"
+      },
+      "items": [
+        {
+          "info": {
+            "name": "Reset the account read token.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://t.counter.dev/resettoken"
+          },
+          "docs": "Resets the authenticated account's read-only API token, invalidating the previous token. Requires an authenticated session."
+        },
+        {
+          "info": {
+            "name": "Log in and establish a session.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://t.counter.dev/login",
+            "body": {
+              "type": "form-urlencoded",
+              "data": [
+                {
+                  "name": "user",
+                  "value": ""
+                },
+                {
+                  "name": "password",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Authenticates a user with username and password and sets a session cookie. Body is application/x-www-form-urlencoded."
+        },
+        {
+          "info": {
+            "name": "Register a new account.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://t.counter.dev/register",
+            "body": {
+              "type": "form-urlencoded",
+              "data": [
+                {
+                  "name": "user",
+                  "value": ""
+                },
+                {
+                  "name": "password",
+                  "value": ""
+                },
+                {
+                  "name": "mail",
+                  "value": ""
+                },
+                {
+                  "name": "utcoffset",
+                  "value": ""
+                }
+              ]
+            }
+          },
+          "docs": "Creates a new account with a username and password, optional email, and UTC offset preference, then establishes a session. Body is application/x-www-form-urlencoded."
+        },
+        {
+          "info": {
+            "name": "Log out of the current session.",
+            "type": "http"
+          },
+          "http": {
+            "method": "POST",
+            "url": "https://t.counter.dev/logout"
+          },
+          "docs": "Log out of the current session."
+        }
+      ]
+    }
+  ],
+  "bundled": true
+}

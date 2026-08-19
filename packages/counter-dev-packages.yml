@@ -1,0 +1,96 @@
+generated: '2026-08-13'
+method: searched
+source: >-
+  npm, PyPI, RubyGems, crates.io and GitHub registry searches (all miss), plus
+  proxy.golang.org module metadata, the GitHub Releases API for
+  ihucos/counter.dev-selfhost, and the tracking-code snippet emitted by
+  static/components/counter-trackingcode.js in ihucos/counter.dev.
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter publishes no client SDK in any language package registry. Registry
+  searches for npm, PyPI, RubyGems and crates.io all returned no first-party
+  package (see registries_probed below). The only first-party distributables
+  Counter ships are (a) the browser tracking snippet served unversioned from
+  cdn.counter.dev, (b) the Go server module github.com/ihucos/counter.dev, and
+  (c) the self-host CLI binary `cntr` published as a GitHub Release asset. None
+  of the three is a client library for the /query or /dump data APIs — a
+  consumer integrating against those endpoints writes plain HTTP by hand.
+sdk_pointer_emitted: false
+sdk_pointer_note: >-
+  No `SDKs` pointer is wired in apis.yml. The tracking snippet is an embeddable
+  browser component (recorded in components/counter-dev-components.yml), the Go
+  module is the server itself, and the CLI is an operator tool for self-hosting
+  — none is a client SDK, so claiming one would overstate what Counter ships.
+
+registries_probed:
+- registry: npm
+  query: counter.dev / counterdev
+  result: no first-party package
+- registry: pypi
+  query: counter-dev / counterdev
+  result: 404
+- registry: rubygems
+  query: counter-dev
+  result: 404
+- registry: crates.io
+  query: counter.dev
+  result: 0 crates
+- registry: go
+  query: github.com/ihucos/counter.dev
+  result: module present (see packages below)
+
+packages:
+- language: javascript
+  kind: browser-snippet
+  registry: cdn
+  name: counter.dev tracking script
+  url: https://cdn.counter.dev/script.js
+  install: '<script src="https://cdn.counter.dev/script.js" data-id="YOUR-UUID" data-utcoffset="0"></script>'
+  official: true
+  version: null
+  published: '2026-04-29'
+  source_repo: https://github.com/ihucos/x-cdn.counter.dev
+  note: >-
+    UNPINNED distribution — the install snippet Counter generates in its own
+    dashboard (static/components/counter-trackingcode.js) hard-codes the
+    unversioned URL https://cdn.counter.dev/script.js, so there is no version a
+    consumer can pin to and no registry metadata endpoint to query. `version` is
+    null because none is published, not because it was not checked. `published`
+    is the Last-Modified header observed on the CDN asset
+    (Wed, 29 Apr 2026 10:11:41 GMT), which is the only currency signal available.
+    Served from GitHub Pages / Fastly with access-control-allow-origin: *.
+- language: go
+  kind: server
+  registry: go
+  name: github.com/ihucos/counter.dev
+  url: https://pkg.go.dev/github.com/ihucos/counter.dev
+  install: go install github.com/ihucos/counter.dev@latest
+  official: true
+  version: v0.0.0-20260429101054-a431dec7c91a
+  published: '2026-04-29'
+  note: >-
+    The Counter server itself, not a client library. The project cuts no semver
+    tags or GitHub Releases on this repo (releases API returns 0, tags API
+    returns 0), so proxy.golang.org resolves only a pseudo-version pinned to
+    commit a431dec7c91a. AGPL-3.0.
+- language: go
+  kind: cli-binary
+  registry: github-releases
+  name: cntr (counter.dev-selfhost)
+  url: https://github.com/ihucos/counter.dev-selfhost/releases
+  install: curl -L https://github.com/ihucos/counter.dev-selfhost/releases/download/0.2.1/cntr-linux-amd64 > /usr/local/bin/cntr && chmod +x /usr/local/bin/cntr
+  official: true
+  version: '0.2.1'
+  published: '2023-09-13'
+  note: >-
+    Operator CLI for the self-hosted build; see cli/counter-dev-cli.yml.
+    DECAY SIGNAL — the newest release asset is 0.2.1 from 2023-09-13, while the
+    hosted server repo it accompanies was last pushed 2026-04-29. The self-host
+    distribution is roughly three years behind the service, and its own README
+    calls the self-hosted build "beta" with archiving not implemented.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

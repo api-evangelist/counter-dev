@@ -1,0 +1,96 @@
+generated: '2026-08-13'
+method: probed
+source: >-
+  Live probes on 2026-08-13 of https://counter.dev/query?demo=1,
+  https://counter.dev/dump?demo=1, https://counter.dev/app#demo and
+  https://cdn.counter.dev/script-testing.js, reconciled against
+  backend/endpoints/query.go, backend/endpoints/dump.go and the Makefile in
+  https://github.com/ihucos/counter.dev.
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter has no test-mode/live-mode key split and no fixture tooling, but it
+  does expose a genuinely useful sandbox that most analytics providers do not: a
+  PUBLIC, UNAUTHENTICATED DEMO ACCOUNT reachable from the real production
+  endpoints. Appending `demo=1` to GET /query or any non-empty `demo` to GET
+  /dump substitutes the magic account `counter` and returns live production-shaped
+  data with no credential at all. That makes both data endpoints explorable —
+  including the SSE stream — before signing up.
+
+modes:
+- name: demo
+  activation: query parameter `demo=1` (/query) or any non-empty `demo` (/dump)
+  credential_required: false
+  detail: >-
+    backend/endpoints/query.go and dump.go both branch on the `demo` form value
+    and swap in `ctx.User("counter")` — the source comments call it "that magic
+    user" / "the magic demo user". The data returned is real traffic for the
+    sites linked to that account, not synthetic fixtures.
+  ui: https://counter.dev/app#demo
+- name: live
+  activation: session cookie, or `user` + `token` query pair
+  credential_required: true
+
+verified_probes:
+- url: https://counter.dev/query?demo=1&from=2026-08-01&to=2026-08-10
+  status: 200
+  observation: >-
+    Returned an aggregated JSON document keyed by site host with browser,
+    country, date, device, hour and related breakdowns. No credential sent.
+- url: https://counter.dev/dump?demo=1
+  status: 200
+  observation: >-
+    Opened the Server-Sent Events stream and emitted
+    `data: {"type":"oldest-archive-date","payload":"2022-09-20"}` followed by an
+    `archive` payload. No credential sent.
+- url: https://counter.dev/app#demo
+  status: 200
+  observation: The dashboard UI bound to the same demo account.
+- url: https://t.counter.dev/track?user=counter&screen=1920x1080
+  status: 200
+  observation: >-
+    With an `Origin: https://example.com` header, returned the plain-text body
+    "OK". The collect endpoint is unauthenticated by design, so a write can be
+    exercised end to end — but note this writes to a REAL account, it is not a
+    sandboxed write. Do not use production account ids for testing.
+
+test_script:
+  url: https://cdn.counter.dev/script-testing.js
+  status: 200
+  detail: >-
+    A second tracking script published alongside the production one, from the
+    same CDN and the same source repo (ihucos/x-cdn.counter.dev). Counter does
+    not document what distinguishes it; it is recorded here as an observed
+    artifact, not as a documented testing facility.
+
+local_development:
+  command: make devserver
+  requires: a Redis server on localhost:6379
+  source: https://github.com/ihucos/counter.dev#running-locally
+  detail: >-
+    The full stack runs locally from the AGPL-3.0 source, which is the most
+    complete test environment available — an integrator can point `data-server`
+    at their own instance and exercise every endpoint without touching the
+    hosted service.
+  self_host: >-
+    `cntr createuser` then `cntr serve` from
+    https://github.com/ihucos/counter.dev-selfhost — see
+    cli/counter-dev-cli.yml.
+
+not_present:
+- test-mode vs live-mode API keys or key prefixes
+- test cards, test bank accounts, or hosted test tokens (not a payments API)
+- time simulation / test clocks
+- fixture, seed or trigger tooling
+- a sandbox host distinct from production
+- any documented reset of demo state
+
+caveat: >-
+  The demo surface is a real production account, not an isolated sandbox. Reads
+  are safe and free; writes against it (a /track call naming `user=counter`)
+  pollute the demo account's real counters and should not be issued.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

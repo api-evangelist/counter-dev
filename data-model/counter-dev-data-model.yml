@@ -1,0 +1,215 @@
+generated: '2026-08-13'
+method: derived
+source: >-
+  openapi/counter-dev-stats-api-openapi.yml,
+  openapi/counter-dev-account-api-openapi.yml,
+  openapi/counter-dev-tracking-api-openapi.yml, plus the Go type definitions in
+  https://github.com/ihucos/counter.dev — backend/models/user.go,
+  backend/models/site.go, backend/endpoints/dump.go and backend/lib/ctx.go — and
+  a live capture of GET /query?demo=1 and GET /dump?demo=1 on 2026-08-13.
+provider: Counter
+providerId: counter-dev
+
+summary: >-
+  Counter's data model is deliberately tiny and, by design, contains NO
+  individual-visitor entity. There is no Visitor, Session, Event or Person
+  record anywhere in the system. A visit is folded into counters the instant it
+  arrives — the /track handler builds a transient Visit map and immediately
+  increments Redis hashes and sorted sets, then discards it. The persisted graph
+  is therefore User → Site → aggregated counter buckets, and nothing below that.
+  This is the structural expression of the privacy claim, not a policy layered on
+  top of a conventional model.
+
+derived_from_spec: true
+spec_caveat: >-
+  Counter's OpenAPI describes responses prose-only (`type: object`) because the
+  project publishes no response schemas. The entities and fields below are
+  therefore derived primarily from the AGPL-3.0 Go source and confirmed against
+  live demo-account payloads, not read out of components.schemas — there are no
+  reusable schemas in the spec to read.
+
+id_conventions:
+- entity: User
+  id: >-
+    Human-chosen account id (the registration username), minimum 4 characters,
+    truncated at 256. Used directly as the `user` query parameter.
+- entity: User (public alias)
+  id: >-
+    A UUID mapped to the account id through the Redis hash `uuid2id`. This is the
+    `data-id` in the tracking snippet and the `id` parameter on /track — it lets
+    a site publish a tracking identifier without exposing the username.
+- entity: Site
+  id: >-
+    The visit's Origin host with scheme and a leading `www.` stripped
+    (Origin2SiteId in backend/endpoints/track.go). Sites are created implicitly
+    by the first visit; there is no create-site operation.
+- entity: Token
+  id: >-
+    8 characters of a SHA-256 hash of 512 random bytes, base64url-encoded on
+    read. Stored in the Redis hash `tokens` keyed by account id — one token per
+    account, so resetting it revokes every existing share link at once.
+
+entities:
+- name: User
+  description: An account. The top of the graph and the unit of authentication.
+  source: backend/models/user.go
+  fields:
+  - name: id
+    type: string
+    description: Account id / username. Minimum 4 chars, truncated at 256.
+  - name: password
+    type: string
+    description: Stored as sha256(sha256(password) + serverSalt). Never returned.
+  - name: token
+    type: string
+    description: Read-only share token; base64url of the stored value.
+  - name: uuid
+    type: string
+    description: Public per-account UUID used as the tracking `data-id`.
+  - name: mail
+    type: string
+    description: Optional, collected at registration.
+  - name: isSubscribed
+    type: boolean
+    description: Derived in the /dump payload from whether a subscription id exists.
+  - name: prefs
+    type: map[string]string
+    description: >-
+      Free-form preference bag (utcoffset, preferred site, preferred date range,
+      language).
+- name: Site
+  description: >-
+    A tracked origin belonging to a User. Implicitly created on first visit; no
+    explicit registration.
+  source: backend/models/site.go
+  fields:
+  - name: id
+    type: string
+    description: Normalised origin host.
+  - name: userId
+    type: string
+    description: Owning account id.
+  - name: count
+    type: integer
+    description: Total linked-visit count for the site.
+- name: Visit
+  description: >-
+    TRANSIENT ONLY — a map[string]string assembled in the /track handler and
+    consumed immediately by saveVisitPart. Never persisted as a row or document.
+    This is the entity a conventional analytics data model would store and
+    Counter deliberately does not.
+  persisted: false
+  source: backend/endpoints/track.go, backend/models/site.go
+  fields:
+  - {name: date, type: string}
+  - {name: weekday, type: string}
+  - {name: hour, type: string}
+  - {name: platform, type: string}
+  - {name: browser, type: string}
+  - {name: device, type: string}
+  - {name: country, type: string}
+  - {name: screen, type: string}
+  - {name: lang, type: string}
+  - {name: ref, type: string, description: Referrer HOST only; path and query are dropped.}
+  - {name: loc, type: string}
+  - {name: page, type: string}
+- name: VisitCounter
+  description: >-
+    The only persisted representation of traffic. Each key is
+    `v:<origin>,<userId>,<field>,<timeRange>` holding a Redis hash (for the fixed
+    cardinality fields date, weekday, platform, hour, browser, device, country,
+    screen) or a sorted set (for the open-ended fields lang, ref, loc, page).
+    Sorted sets are trimmed to 100 members, so long-tail values are dropped
+    rather than stored.
+  source: backend/models/site.go
+  fields:
+  - {name: field, type: string, description: One of the twelve visit dimensions.}
+  - {name: timeRange, type: string, description: 'Year, month, day or yesterday bucket.'}
+  - {name: value, type: string, description: The dimension value, truncated at 256 chars.}
+  - {name: count, type: integer}
+  retention: >-
+    Buckets carry Redis EXPIREAT. Yearly buckets expire at next year plus a 14h
+    tolerance, monthly at next month, daily after two days. Short-window data is
+    forgotten by construction — the privacy policy describes this as "forgetting"
+    as time passes.
+- name: ArchiveRecord
+  description: >-
+    Daily aggregates persisted to a SQL database (gorm/SQLite by default),
+    introduced 2022-09-19 per the privacy policy. This is what GET /query reads
+    and what makes historical date ranges possible; Redis alone cannot answer them.
+  source: backend/lib/archive.go
+- name: LogEntry
+  description: >-
+    A bounded ring of the most recent lines per site (loglinesKeep = 30),
+    surfaced as `logs` in the /dump payload.
+  source: backend/models/site.go
+- name: TimedVisits
+  description: >-
+    The response projection of VisitCounter, grouped into the five windows the
+    dashboard renders.
+  source: backend/models/site.go
+  fields:
+  - {name: day, type: VisitsData}
+  - {name: yesterday, type: VisitsData}
+  - {name: month, type: VisitsData}
+  - {name: year, type: VisitsData}
+  - {name: all, type: VisitsData}
+
+relationships:
+- from: User
+  to: Site
+  type: has_many
+  via: GetPreferredSiteLinks / the site-links map keyed by site id
+- from: Site
+  to: User
+  type: belongs_to
+  via: userId
+- from: Site
+  to: VisitCounter
+  type: has_many
+  via: 'Redis key v:<origin>,<userId>,<field>,<timeRange>'
+- from: Site
+  to: TimedVisits
+  type: has_one
+  via: GetVisits(utcOffset) projection over VisitCounter
+- from: Site
+  to: LogEntry
+  type: has_many
+  via: GetLogs()
+- from: User
+  to: ArchiveRecord
+  type: has_many
+  via: QueryArchive(user, dateFrom, dateTo)
+- from: User
+  to: Token
+  type: has_one
+  via: 'Redis hash tokens[userId] — one token per account'
+- from: Visit
+  to: VisitCounter
+  type: folds_into
+  via: 'ZINCRBY / HINCRBY in saveVisitPart — the Visit itself is then discarded'
+
+response_projections:
+- operation: query
+  shape: >-
+    Object keyed by site host, each value an object keyed by dimension (browser,
+    country, date, device, hour, lang, page, ref, screen, weekday, platform),
+    each of those a map of value → integer count. Confirmed live against
+    ?demo=1.
+- operation: dump
+  shape: >-
+    Typed SSE envelope {"type": ..., "payload": ...}. `dump` payloads carry
+    {sites: {siteId: {count, logs, visits}}, user: {id, token, uuid, isSubscribed,
+    prefs}, meta: {}}. See asyncapi/counter-dev-stats-asyncapi.yml.
+
+absent_by_design:
+- Visitor / Person / Contact entity
+- Session entity (sessionStorage is client-side only and never sent)
+- Event / Hit row
+- IP address storage (country is derived from CF-IPCountry and only the country kept)
+- Cookie or device identifier
+- Page-path history per visitor (only per-path counters)
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com

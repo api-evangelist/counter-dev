@@ -1,0 +1,223 @@
+asyncapi: 3.0.0
+info:
+  title: Counter Stats Stream
+  version: '1.0'
+  description: >-
+    Counter publishes NO AsyncAPI of its own. This document is DERIVED by API
+    Evangelist from the AGPL-3.0 server source at
+    https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/dump.go
+    and from a live capture of the public demo stream at
+    https://counter.dev/dump?demo=1 on 2026-08-13. It describes the one real
+    event surface Counter operates: the Server-Sent Events feed at GET /dump that
+    the dashboard consumes, which pushes an initial archive snapshot and then a
+    fresh aggregate dump as new visits arrive.
+
+
+    Counter has NO webhooks — it never calls out to a consumer-supplied URL, and
+    no webhook, callback or subscription surface exists anywhere in the source or
+    the documentation. This SSE stream is the entirety of its event surface, and
+    it is pull-only: the consumer opens the connection.
+
+
+    Transport is one-way HTTP streaming (text/event-stream), not WebSocket, not
+    MQTT, not Kafka. The server sets no write timeout for this route precisely so
+    the connection can stay open (backend/lib/app.go).
+  license:
+    name: AGPL-3.0
+    url: https://github.com/ihucos/counter.dev/blob/master/LICENSE
+  contact:
+    name: Counter (ihucos)
+    url: https://github.com/ihucos/counter.dev
+
+servers:
+  hosted:
+    host: counter.dev
+    protocol: https
+    description: >-
+      Hosted dashboard host. https://t.counter.dev serves the identical endpoint
+      set (verified 2026-08-13); the split is conventional, not technical.
+  selfhosted:
+    host: '{host}'
+    protocol: https
+    description: A self-hosted Counter deployment.
+    variables:
+      host:
+        default: localhost:8080
+        description: The operator's own Counter host.
+
+channels:
+  dump:
+    address: /dump
+    title: Aggregated stats stream
+    description: >-
+      Server-Sent Events stream of one account's aggregated statistics.
+      Authenticated by the `swa` session cookie, by a `user` + `token` query pair
+      (read-only, sessionless), or opened anonymously against the public demo
+      account with any non-empty `demo` parameter. Emits at most one dump per
+      second — the handler throttles on `time.Since(lastDump) > 1s`.
+    messages:
+      oldestArchiveDate:
+        $ref: '#/components/messages/oldestArchiveDate'
+      archive:
+        $ref: '#/components/messages/archive'
+      dump:
+        $ref: '#/components/messages/dump'
+      nouser:
+        $ref: '#/components/messages/nouser'
+
+operations:
+  receiveStats:
+    action: receive
+    channel:
+      $ref: '#/channels/dump'
+    title: Consume the stats stream
+    description: >-
+      Open GET /dump and read typed SSE frames. The server sends
+      `oldest-archive-date`, then `archive`, then an initial `dump`, then a
+      further `dump` each time the account's Redis signal fires and at least one
+      second has elapsed. If no subject can be resolved the server sends a single
+      `nouser` frame and closes.
+    messages:
+    - $ref: '#/channels/dump/messages/oldestArchiveDate'
+    - $ref: '#/channels/dump/messages/archive'
+    - $ref: '#/channels/dump/messages/dump'
+    - $ref: '#/channels/dump/messages/nouser'
+
+components:
+  messages:
+    oldestArchiveDate:
+      name: oldest-archive-date
+      title: Oldest archived date
+      summary: >-
+        First frame. The earliest date for which archived data exists for this
+        account, so the UI can bound its date picker.
+      contentType: text/event-stream
+      payload:
+        type: object
+        required: [type, payload]
+        properties:
+          type:
+            type: string
+            const: oldest-archive-date
+          payload:
+            type: string
+            description: Date as YYYY-MM-DD, or null when no archive exists.
+      examples:
+      - name: demoAccount
+        summary: Observed live on https://counter.dev/dump?demo=1 (2026-08-13)
+        payload:
+          type: oldest-archive-date
+          payload: '2022-09-20'
+    archive:
+      name: archive
+      title: Archive snapshot
+      summary: >-
+        Second frame. Two precomputed archive windows relative to the caller's
+        UTC offset, keyed by their day offsets.
+      contentType: text/event-stream
+      payload:
+        type: object
+        required: [type, payload]
+        properties:
+          type:
+            type: string
+            const: archive
+          payload:
+            type: object
+            description: >-
+              Map of window key to archive result. Keys observed are "-7:-2"
+              (last seven days ending two days ago) and "-30:-2".
+            additionalProperties:
+              type: object
+    dump:
+      name: dump
+      title: Live aggregate dump
+      summary: >-
+        The recurring frame. A full snapshot of the account's current aggregates,
+        re-sent whenever new visits arrive (throttled to one per second).
+      contentType: text/event-stream
+      payload:
+        type: object
+        required: [type, payload]
+        properties:
+          type:
+            type: string
+            const: dump
+          payload:
+            type: object
+            properties:
+              sites:
+                type: object
+                description: Map of site id to that site's aggregates.
+                additionalProperties:
+                  type: object
+                  properties:
+                    count:
+                      type: integer
+                    logs:
+                      type: object
+                      additionalProperties:
+                        type: integer
+                    visits:
+                      type: object
+                      properties:
+                        day: {type: object}
+                        yesterday: {type: object}
+                        month: {type: object}
+                        year: {type: object}
+                        all: {type: object}
+              user:
+                type: object
+                properties:
+                  id: {type: string}
+                  token:
+                    type: string
+                    description: >-
+                      The account's read-only share token. NOTE — the stream
+                      returns the caller's own token in every dump frame.
+                  uuid: {type: string}
+                  isSubscribed: {type: boolean}
+                  prefs:
+                    type: object
+                    additionalProperties: {type: string}
+              meta:
+                type: object
+                description: >-
+                  Empty for a normal session. Carries {"demo":"1"} on the demo
+                  account and {"sessionless":"1"} when authenticated by the
+                  user+token pair.
+                additionalProperties: {type: string}
+    nouser:
+      name: nouser
+      title: No subject resolved
+      summary: >-
+        Terminal frame. Sent when there is no session, no valid token pair and no
+        demo flag. The server then closes the stream. Note this is a 200 response
+        carrying an in-band failure, NOT a 403 — a consumer must inspect the
+        frame type to detect that it is unauthenticated.
+      contentType: text/event-stream
+      payload:
+        type: object
+        required: [type, payload]
+        properties:
+          type:
+            type: string
+            const: nouser
+          payload:
+            type: 'null'
+
+  securitySchemes:
+    apiToken:
+      type: httpApiKey
+      in: query
+      name: token
+      description: >-
+        Read-only account token, paired with the `user` query parameter. See
+        authentication/counter-dev-authentication.yml.
+    sessionCookie:
+      type: httpApiKey
+      in: cookie
+      name: swa
+      description: >-
+        Session cookie set by POST /login and POST /register. The source names it
+        `swa` (backend/lib/ctx.go).

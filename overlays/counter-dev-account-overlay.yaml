@@ -1,0 +1,93 @@
+overlay: 1.0.0
+info:
+  title: API Evangelist enhancements for the Counter account API
+  version: 1.0.0
+  description: Non-destructive enhancements captured by the API Evangelist enrichment pipeline on 2026-08-13.
+    Derived from live probes of https://counter.dev and https://t.counter.dev and from the AGPL-3.0 server
+    source at https://github.com/ihucos/counter.dev. Applying this overlay adds provenance, cross-cutting
+    convention/error/lifecycle pointers, and per-operation runtime notes. It never mutates the original
+    document.
+extends: openapi/counter-dev-account-api-openapi.yml
+actions:
+- target: $.info
+  description: Record that this specification is derived by API Evangelist from the AGPL-3.0 source, not
+    published by Counter.
+  update:
+    x-apievangelist-provenance:
+      derived-by: API Evangelist
+      derived-from: https://github.com/ihucos/counter.dev
+      provider-publishes-spec: false
+      date: '2026-08-13'
+- target: $
+  description: Attach the cross-cutting runtime semantics observed on the live service. None of this is
+    published by Counter.
+  update:
+    x-conventions:
+      artifact: conventions/counter-dev-conventions.yml
+      idempotency: false
+      pagination: none
+      versioning: none
+      request-id: false
+      rate-limit-headers: false
+      error-format: plain-text
+      rfc9457: false
+    x-error-catalog:
+      artifact: errors/counter-dev-problem-types.yml
+      note: Errors are bare plain-text strings; a 403 body is literally "Forbidden" whether the credential
+        was missing or invalid.
+    x-lifecycle:
+      artifact: lifecycle/counter-dev-lifecycle.yml
+      versioning-policy: false
+      deprecation-policy: false
+      status-page: false
+      changelog: false
+      sla: false
+    x-sandbox:
+      artifact: sandbox/counter-dev-sandbox.yml
+      public-demo: true
+      activation: demo=1 on /query, any non-empty demo on /dump
+      credential-required: false
+    x-data-model:
+      artifact: data-model/counter-dev-data-model.yml
+      per-visitor-entity: false
+- target: $.components.securitySchemes.sessionCookie
+  description: 'Correct the session cookie name: the source names it "swa" (backend/lib/ctx.go), not "session".'
+  update:
+    x-actual-cookie-name: swa
+    x-source: https://github.com/ihucos/counter.dev/blob/master/backend/lib/ctx.go
+- target: $.components.securitySchemes.apiToken
+  description: Record the real properties and risks of the read-only token.
+  update:
+    x-token-properties:
+      scope: read-only
+      per-account: true
+      count-per-account: 1
+      transport: query-string
+      rotation-endpoint: POST /resettoken
+      caveat: Travels in the URL, so it lands in browser history, proxy logs and Referer headers. There
+        is no header-based alternative.
+- target: $.paths['/resettoken'].post
+  description: Attach observed runtime behaviour for resetToken.
+  update:
+    x-observed-behavior: DESTRUCTIVE. Rotates the single per-account read-only token, immediately invalidating
+      every existing share link. classified safety-critical with human-in-the-loop required in agentic-access/counter-dev-agentic-access.yml.
+    x-verified: '2026-08-13'
+- target: $.paths['/login'].post
+  description: Attach observed runtime behaviour for login.
+  update:
+    x-observed-behavior: 'Returns 400 with the plain-text body ''Missing Input: user'' when a required
+      form field is absent (observed live 2026-08-13). Sets the session cookie named ''swa'' in the source,
+      not ''session''.'
+    x-verified: '2026-08-13'
+- target: $.paths['/register'].post
+  description: Attach observed runtime behaviour for register.
+  update:
+    x-observed-behavior: Account id must be at least 4 characters and the password at least 8 (backend/models/user.go).
+      Failures return 400 with a bare plain-text message.
+    x-verified: '2026-08-13'
+- target: $.paths['/logout'].post
+  description: Attach observed runtime behaviour for logout.
+  update:
+    x-observed-behavior: Clears the 'swa' session by setting MaxAge -1. Returns 403 'Forbidden' when there
+      is no authenticated subject.
+    x-verified: '2026-08-13'

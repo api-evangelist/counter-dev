@@ -1,0 +1,56 @@
+generated: '2026-08-13'
+method: generated
+source: >-
+  Authored by the API Evangelist enrichment pipeline from the OpenAPI in
+  openapi/, the derived AsyncAPI in asyncapi/, and the conventions, errors and
+  components artifacts in this repository. Every operationId referenced below was
+  verified against the specification files; several behaviours were verified
+  against live probes of https://counter.dev on 2026-08-13.
+provider: Counter
+providerId: counter-dev
+
+note: >-
+  Counter publishes no skills, no AGENTS.md and no llms.txt of its own — the
+  ihucos/counter.dev repository was searched and https://counter.dev/llms.txt
+  returns 404. These skills are GENERATED, not harvested, and are grounded only
+  in operations that exist.
+
+skill_count: 3
+
+skills:
+- name: counter-dev-read-site-stats
+  file: counter-dev-read-site-stats.md
+  api: counter-dev:counter-dev-stats-api
+  operations: [query]
+  summary: >-
+    Read aggregated analytics for a date range with a read-only token, including
+    how to parse a JSON body mislabelled text/plain and why long-tail referrers
+    and pages are truncated rather than paginated.
+- name: counter-dev-stream-live-stats
+  file: counter-dev-stream-live-stats.md
+  api: counter-dev:counter-dev-stats-api
+  operations: [dump]
+  summary: >-
+    Consume the Server-Sent Events feed, dispatch on the in-payload frame type
+    (Counter does not use the SSE event field), and detect the nouser
+    authentication failure that arrives inside an HTTP 200.
+- name: counter-dev-install-tracking
+  file: counter-dev-install-tracking.md
+  api: counter-dev:counter-dev-tracking-api
+  operations: [track, trackpage]
+  summary: >-
+    Place and verify the tracking snippet, with the full list of deliberate
+    server-side drops that explain most "no data" reports.
+
+not_written:
+- flow: account lifecycle (login, register, resetToken, logout)
+  reason: >-
+    These operations handle credentials and rotate the account's only read-only
+    token. resetToken is classified safety-critical with human-in-the-loop
+    required in agentic-access/counter-dev-agentic-access.yml. Packaging them as
+    an agent skill would encourage exactly the unattended execution that
+    classification exists to prevent.
+
+maintainers:
+- FN: Kin Lane
+  email: kin@apievangelist.com
