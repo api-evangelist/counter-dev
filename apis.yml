@@ -8,6 +8,19 @@ description: Counter (counter.dev) is an open-source, privacy-friendly web analy
   data feed returns aggregated stats. Counter uses no cookies, no logging, and no
   IP fingerprinting. It is AGPL-3.0 licensed and can be self-hosted; the hosted
   service is pay-what-you-want.
+deliveryModel:
+  model: unknown
+  open_source: unknown
+  commercial: true
+  callable_host: true
+  label: Delivery model not determined — needs a product licence on record
+  confidence: low
+  source:
+  - openapi
+  - pricing
+  - repository-unlicensed
+  generated: '2026-08-28'
+  method: derived
 accessModel:
   pricing: freemium
   onboarding: open
