@@ -2,7 +2,7 @@ overlay: 1.0.0
 info:
   title: API Evangelist enhancements for the Counter account API
   version: 1.0.0
-  description: Non-destructive enhancements captured by the API Evangelist enrichment pipeline on 2026-08-13.
+  x-description: Non-destructive enhancements captured by the API Evangelist enrichment pipeline on 2026-08-13.
     Derived from live probes of https://counter.dev and https://t.counter.dev and from the AGPL-3.0 server
     source at https://github.com/ihucos/counter.dev. Applying this overlay adds provenance, cross-cutting
     convention/error/lifecycle pointers, and per-operation runtime notes. It never mutates the original
