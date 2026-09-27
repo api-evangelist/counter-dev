@@ -9,17 +9,22 @@ description: Counter (counter.dev) is an open-source, privacy-friendly web analy
   IP fingerprinting. It is AGPL-3.0 licensed and can be self-hosted; the hosted
   service is pay-what-you-want.
 deliveryModel:
-  model: unknown
-  open_source: unknown
+  model: open-core
+  license: AGPL-3.0
+  license_evidence:
+    repo: ihucos/counter.dev
+    spdx: AGPL-3.0
+    stars: 1009
+  open_source: true
   commercial: true
   callable_host: true
-  label: Delivery model not determined — needs a product licence on record
-  confidence: low
+  label: Open core · an OSS project plus a commercial hosted product
+  confidence: medium
   source:
   - openapi
   - pricing
-  - repository-unlicensed
-  generated: '2026-08-28'
+  - repository-license
+  generated: '2026-09-25'
   method: derived
 accessModel:
   pricing: freemium
@@ -38,7 +43,7 @@ image: https://kinlane-images.s3.amazonaws.com/shared/apis-json/icons/counter-de
 tags:
 - Web Analytics
 - Privacy
-- Open-Source
+- Open Source
 - Tracking
 - Self-Hosted
 tags_raw:
@@ -47,6 +52,7 @@ tags_raw:
 - Open Source
 - Tracking
 - Self-Hosted
+- Open-Source
 created: '2026-06-21'
 modified: '2026-08-13'
 specificationVersion: '0.23'
