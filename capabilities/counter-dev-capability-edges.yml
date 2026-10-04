@@ -1,0 +1,27 @@
+slug: counter-dev
+provider: Counter
+generated_by: planning/capability-mapping/scripts/classify_capabilities.py
+model: claude-opus-5
+frame:
+- Software & Technology
+min_confidence: 0.7
+capability_model:
+  source: https://github.com/vincentmakes/turbo-ea-capabilities
+  license: CC-BY-4.0
+  attribution: Turbo EA Capabilities by Vincent Verdet — Turbo EA, https://github.com/vincentmakes/turbo-ea-capabilities,
+    CC BY 4.0
+  notice: NOTICE
+edge_count: 1
+edges:
+- tag: Stats
+  spec_file: counter-dev-stats-api-openapi.yml
+  capability_id: BC-4280.30
+  capability_id_l1: BC-4280
+  capability_name: Product Usage Analytics
+  confidence: 0.7
+  evidence: GET /query — Query archived stats for a date range; GET /dump — Stream live and archived stats
+    (Server-Sent Events)
+  reason: Counter is a 'privacy-friendly web analytics service' and this tag serves aggregated site usage
+    statistics, i.e. usage analytics over a digital product. Mapped to Product Usage Analytics with moderate
+    confidence since it is web/site traffic analytics rather than in-product feature funnels; BC-400.60
+    digital marketing was the alternative reading.

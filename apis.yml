@@ -130,6 +130,9 @@ apis:
   - type: APIReference
     url: https://github.com/ihucos/counter.dev/tree/master/backend/endpoints
 common:
+- type: CapabilityMap
+  url: capabilities/counter-dev-capability-edges.yml
+  name: Counter Business Capability Map
 - type: AgenticAccess
   url: agentic-access/counter-dev-agentic-access.yml
 - type: DomainSecurity
