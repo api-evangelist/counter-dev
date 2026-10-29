@@ -1,4 +1,4 @@
-# Counter (counter-dev)
+# Counter
 
 <!-- API-EVANGELIST-PROVENANCE:BEGIN -->
 > ### About this repository
@@ -66,94 +66,152 @@
 
 Counter (counter.dev) is an open-source, privacy-friendly web analytics service. A lightweight tracking snippet POSTs a single aggregated hit per visit to a public collect endpoint (t.counter.dev), and a token-authenticated dashboard data feed returns aggregated stats. Counter uses no cookies, no logging, and no IP fingerprinting. It is AGPL-3.0 licensed and can be self-hosted; the hosted service is pay-what-you-want.
 
-**APIs.json:** [https://raw.githubusercontent.com/api-evangelist/counter-dev/refs/heads/main/apis.yml](https://raw.githubusercontent.com/api-evangelist/counter-dev/refs/heads/main/apis.yml)
+**Areas:** Web Analytics · Privacy · Open Source · Tracking · Self-Hosted
 
-## Tags
+## Counter on APIs.io
 
-- Web Analytics
-- Privacy
-- Open Source
-- Tracking
-- Self-Hosted
+Everything profiled for Counter is published on APIs.io rather than in this repository. Start at the provider page — **[apis.io/providers/counter-dev/](https://apis.io/providers/counter-dev/)** — or go straight to one of the APIs or properties below.
 
-## Timestamps
+### APIs (3)
 
-- **Created:** 2026-06-21
-- **Modified:** 2026-06-21
+- [Counter Account API](https://apis.io/apis/counter-dev/counter-dev-account-api/) — The Account API from Counter — 4 operation(s) for account.
+- [Counter Stats API](https://apis.io/apis/counter-dev/counter-dev-stats-api/) — The Stats API from Counter — 2 operation(s) for stats.
+- [Counter Tracking API](https://apis.io/apis/counter-dev/counter-dev-tracking-api/) — The Tracking API from Counter — 2 operation(s) for tracking.
 
-## APIs
+### Published properties
 
-### Counter Tracking / Collect API
+Each property below is a page on APIs.io carrying the machine-readable artifact and what it says.
 
-Public, unauthenticated collect endpoints called by the 1.1 KB tracking snippet. GET /track records one aggregated visit (referrer, screen, country, language, device) keyed to a site data-id; POST /trackpage records a pageview via the browser Beacon API. No cookies or IP addresses are stored.
+#### AsyncAPI (1)
 
-- **Human URL:** [https://counter.dev/help/integration.html](https://counter.dev/help/integration.html)
-- **Base URL:** `https://t.counter.dev`
+Event-driven and webhook contracts.
 
-#### Tags
+- [Counter Stats Stream](https://apis.io/asyncapis/counter-dev/counter-dev-stats-asyncapi/)
 
-- Tracking
-- Collect
-- Analytics
+#### Event channels (1)
 
-#### Properties
+Individual events and webhooks the provider emits.
 
-- [Documentation](https://counter.dev/help/integration.html)
-- [API Reference](https://github.com/ihucos/counter.dev/blob/master/docs/script.js)
-- [OpenAPI](openapi/counter-dev-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/counter-dev.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/counter-dev.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+- [/dump](https://apis.io/channels/counter-dev/dump/)
 
-### Counter Stats / Dashboard Data API
+#### MCP servers (1)
 
-Token- or session-authenticated read endpoints that return aggregated site stats. GET /query returns JSON archive data for a date range; GET /dump is a Server-Sent Events stream pushing live and archived dump payloads. Sessionless access uses user + token query parameters; a shareable read token is resettable via /resettoken.
+Model Context Protocol servers that expose the API to agents.
 
-- **Human URL:** [https://counter.dev/dashboard.html](https://counter.dev/dashboard.html)
-- **Base URL:** `https://counter.dev`
+- [counter-dev-mcp.yml](https://apis.io/servers/counter-dev/counter-dev-mcp-yml/)
 
-#### Tags
+#### Agentic access (1)
 
-- Stats
-- Dashboard
-- Reporting
+Which operations an agent can call, which act, and which need a human in the loop.
 
-#### Properties
+- [Counter Dev Agentic Access](https://apis.io/agentic-access/counter-dev/counter-dev-agentic-access/)
 
-- [API Reference](https://github.com/ihucos/counter.dev/blob/master/backend/endpoints/query.go)
-- [OpenAPI](openapi/counter-dev-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/counter-dev.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/counter-dev.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+#### Collections (4)
 
-### Counter Account API
+Postman and Open Collection request collections.
 
-Form-encoded account endpoints backing the dashboard - register, login, logout, edit account, reset token, and delete user/site. Authentication is by username and password establishing a session cookie; these are application endpoints rather than a formally published developer API.
+- [Counter API](https://apis.io/collections/counter-dev/open-counter-dev/)
+- [Counter Account API](https://apis.io/collections/counter-dev/open-counter-dev-account-api/)
+- [Counter Account Stats API](https://apis.io/collections/counter-dev/open-counter-dev-stats-api/)
+- [Counter Account Tracking API](https://apis.io/collections/counter-dev/open-counter-dev-tracking-api/)
 
-- **Human URL:** [https://counter.dev/](https://counter.dev/)
-- **Base URL:** `https://counter.dev`
+#### Overlays (3)
 
-#### Tags
+OpenAPI overlays, including conversational phrasing for each operation.
 
-- Account
-- Authentication
-- Users
+- [Counter Dev Account Overlay](https://apis.io/overlays/counter-dev/counter-dev-account-overlay/)
+- [Counter Dev Stats Overlay](https://apis.io/overlays/counter-dev/counter-dev-stats-overlay/)
+- [Counter Dev Tracking Overlay](https://apis.io/overlays/counter-dev/counter-dev-tracking-overlay/)
 
-#### Properties
+#### Security (2)
 
-- [API Reference](https://github.com/ihucos/counter.dev/tree/master/backend/endpoints)
-- [OpenAPI](openapi/counter-dev-openapi.yml) — [OpenAPI Specification](https://spec.openapis.org/oas/latest.html)
-- [Postman Collection](collections/counter-dev.postman_collection.json) — [Postman Collection 2.1](https://schema.getpostman.com/json/collection/v2.1.0/collection.json)
-- [Open Collection](collections/counter-dev.opencollection.json) — [Open Collection 1.0](https://schema.opencollection.com/opencollection/v1.0.0.json)
+Authentication, trust centre, and vulnerability disclosure.
 
-## Common Properties
+- [Counter Dev Authentication](https://apis.io/security/counter-dev/counter-dev-authentication/)
+- [Counter Dev Domain Security](https://apis.io/security/counter-dev/counter-dev-domain-security/)
 
-- [GitHub Organization](https://github.com/ihucos/counter.dev)
+#### Plans and pricing (1)
+
+Published plans, tiers and prices.
+
+- [Counter Dev Plans Pricing](https://apis.io/plans/counter-dev/counter-dev-plans-pricing/)
+
+#### Rate limits (1)
+
+Published request limits.
+
+- [Counter Dev Rate Limits](https://apis.io/rate-limits/counter-dev/counter-dev-rate-limits/)
+
+#### FinOps (1)
+
+What the API costs to run, by operation.
+
+- [Counter Dev Finops](https://apis.io/finops/counter-dev/counter-dev-finops/)
+
+## Where to find this API
+
+Links to the company's own pages. This repository publishes no copy of their specifications — the canonical document is theirs and lives at the URLs below.
+
 - [Website](https://counter.dev/)
 - [Documentation](https://counter.dev/help/integration.html)
-- [Plans](plans/counter-dev-plans-pricing.yml)
-- [Rate Limits](rate-limits/counter-dev-rate-limits.yml)
-- [Fin Ops](finops/counter-dev-finops.yml)
+- [Getting started](https://counter.dev/help/integration.html)
+- [Sign up](https://counter.dev/welcome.html?sign-up)
+- [Support](https://github.com/ihucos/counter.dev/issues)
+- [Blog](https://counter.dev/blog)
+- [Privacy policy](https://counter.dev/pages/privacy.html)
+- [GitHub](https://github.com/ihucos/counter.dev)
 
-## Maintainers
+## API Evangelist rating
 
-**FN:** Kin Lane
-**Email:** kin@apievangelist.com
+**Kin Score 46.6** — developing · rubric 0.25.0 · scored 2026-10-23
+
+| Facet | Score |
+|---|---|
+| Discoverability | 66.1 |
+| Contract quality | 51.9 |
+| Contract governance | 4.5 |
+| Operational transparency | 34.2 |
+| Developer ergonomics | 64.9 |
+| Access clarity | 44.7 |
+
+**Agent readiness 26.2** — agent-aware
+
+| Agent-readiness dimension | Result |
+|---|---|
+| Spec Presence | yes |
+| Agentic Access | derived (partial credit) |
+| Reversibility Documented | — |
+| MCP Server | — |
+| Auth Clarity | bearer (partial credit) |
+| Idempotency | — |
+| Error Semantics | documented (partial credit) |
+| OpenAPI Examples | — |
+| Rate Limit Signal | documented (partial credit) |
+| Event Surface Described | derived (partial credit) |
+| Agent Skills | derived (partial credit) |
+| Well Known Catalog | — |
+| Consent Identity | — |
+| Agent Card | — |
+| Dry Run Mode | — |
+| Delegated Identity | — |
+| Protected Resource Metadata | — |
+| Dynamic Client Registration | — |
+| Agentic Commerce | — |
+| Pagination Ratio | na |
+| Operation Distinctiveness | distinct |
+
+**Regulatory alignment 20.6** — Horizontal (data, software, accessibility, platform)
+
+The rubric is published at [github.com/api-evangelist/kin-score](https://github.com/api-evangelist/kin-score). The per-check breakdown behind these numbers — which checks were earned, partial or missed — along with score history and how this provider compares to its peers, is available at [apis.io/providers/counter-dev/](https://apis.io/providers/counter-dev/).
+
+## How this profile is made
+
+API Evangelist profiles a company's public API surface the way a developer would find it: the website, developer portal and documentation, the specifications it publishes, its public repositories, and its pricing, status and changelog pages. From that it derives the properties above — contracts split per API, workflows, schemas, collections, governance rules, plans and rate limits — and scores them against the published [Kin Score rubric](https://github.com/api-evangelist/kin-score).
+
+The artifacts are published on [APIs.io](https://apis.io), not in this repository. This repository is the public record for Counter: the place to say something is wrong, missing or out of date, and to ask for a re-score or a removal.
+
+## Open an issue
+
+- **Something about this listing** — a wrong description, a missing API, a stale artifact or a question about the rating: [open an issue on this repository](https://github.com/api-evangelist/counter-dev/issues/new).
+- **A new API, or one that is not in the catalog yet** — [submit it on APIs.io](https://apis.io/add/).
+- **Anything else** — [the APIs.io inbox](https://github.com/api-search/inbox/issues/new) or [info@apievangelist.com](mailto:info@apievangelist.com).
